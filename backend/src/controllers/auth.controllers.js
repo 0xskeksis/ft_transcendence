@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3'
-const db = new Database('db/database.db')
 import bcrypt from 'bcrypt'
+import db from "../db/db.js"
+import {findUserbyEmail, checkPassword} from "../utils/utils.controllers.js"
 
 const SALT_ROUNDS = 10;
 
@@ -45,20 +46,30 @@ export async function registerUser(request, reply){
 
 		return {success: true, message: "User successfuly created !" };
 	}catch (err) {
-		if (err.code === "SQLITE_CONSTRAINT_UNIQUE"){
+		console.log("SQLite error :", err);
+		if (err.code === "SQLITE_CONSTRAINT_UNIQUE" || err.code == "SQLITE_CONSTRAINT"){
 			return reply.status(400).send({error: "Failed to create the users"})
 		}
-		console.error(err);
 		return reply.status(500).send({error: "Internal Error"})
 	}
 }
 
 export async function verifyUser(request, reply){
-	const {username, email, password} = request.body;
+	const {email, password} = request.body;
 
-	if (!username || !email || !password){
+	if (!email || !password){
 		return response.status(400).send({error: "Missing Field"});
 	}
+	const stmt = db.prepare("SELECT id, username, email, password FROM users WHERE email = ?")
+	const user = stmt.get(email);
+
+	if (!user)
+		return reply.status(401).send({error: "Invalid Credentials"})
+	const match = await bcrypt.compare(password, user.password);
+	if (!match)
+		return reply.status(401).send({error: "Invalid Credentials"})
+
+	
 		
 	return {success: true, message: "User successfuly logged in !" };
 }
