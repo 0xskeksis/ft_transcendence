@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3'
 import bcrypt from 'bcrypt'
 import db from "../db/db.js"
-import {findUserbyEmail, checkPassword} from "../utils/utils.controllers.js"
+import {findUserByEmail, checkPassword} from "../utils/utils.controllers.js"
 
 const SALT_ROUNDS = 10;
 
@@ -65,8 +65,7 @@ export async function verifyUser(request, reply){
 
 	if (!user)
 		return reply.status(401).send({error: "Invalid Credentials"})
-	const match = await bcrypt.compare(password, user.password);
-	if (!match)
+	if (checkPassword(user, password))
 		return reply.status(401).send({error: "Invalid Credentials"})
 
 	
@@ -77,12 +76,21 @@ export async function verifyUser(request, reply){
 export async function deleteUser(request, reply){
 	const {username, email, password} = request.body;
 	
-	if (!username || !email || !password){
+	if (!username || !email || !password)
 		return response.status(400).send({error: "Missing Field"});
 
-	//Verify the user, if OK delete the user from the DB
+	const stmt = db.prepare("SELECT id, username, email, password FROM users WHERE email = ?")
+	const user = stmt.get(email);
+
+	if (!user)
+		return reply.status(401).send({error: "Invalid Credentials"})
+	if (checkPassword(user, password))
+		return reply.status(401).send({error: "Invalid Credentials"})
+	//const	stmt = db.prepare("DELETE id where email = ?");
+	//stmt.exec(email)
+
+
 	return {success: true, message: "You are no longer register on this website !"};
-	}
 }
 
 export async function changePassword(request, reply){
@@ -91,7 +99,8 @@ export async function changePassword(request, reply){
 	if (!username || !email || !password){
 		return response.status(400).send({error: "Missing Field"});
 
-	//maybe send a code with email to reset the password
+	
+
 
 	return {success: true, message: "Password succesfuly changed"};
 	}
