@@ -14,11 +14,13 @@ pkgs.mkShell {
     gtksourceview3
     meson
     ninja
+	curl
+	cjson
   ];
 
   shellHook = ''
+	clear
 	zsh
-    echo "✅ Environnement GTK prêt."
   '';
 }
 
