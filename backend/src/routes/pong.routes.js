@@ -1,8 +1,12 @@
-import {sendData} from '../controllers/pong.controllers.js'
+import {sendData, getData} from '../controllers/pong.controllers.js'
 
 async function pong_routes (fastify, options){
-	fastify.get('/pong', async (request, reply) => {
+	fastify.get('/pong/get', async (request, reply) => {
 		sendData(request, reply);
+	})
+
+	fastify.post('/pong/post', async (request, reply) => {
+		getData(request, reply);
 	})
 }
 

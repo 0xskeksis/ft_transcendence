@@ -16,6 +16,7 @@ pkgs.mkShell {
     ninja
 	curl
 	cjson
+	valgrind
   ];
 
   shellHook = ''
