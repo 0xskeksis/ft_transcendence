@@ -10,7 +10,7 @@ const fastify = Fastify();
 
 fastify.register(routes)
 
-await fastify.listen({ port: PORT }, function (err, address){
+await fastify.listen({ port: PORT, host: '0.0.0.0' }, function (err, address){
 	if (err){
 		fastify.log(err)
 		process.exit(1)
