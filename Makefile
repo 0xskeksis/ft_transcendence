@@ -9,7 +9,7 @@
 
 build:
 	@printf " $(YELLOW)$(BOLD)$(ITALIC)■$(RESET)  Building the project $(YELLOW)$(BOLD)$(ITALIC)$(RESET)\n"
-	docker build -f docker/backend/Dockerfile -t ft_transcendence .
+	docker build -f backend/Dockerfile -t ft_transcendence .
 run:
 	docker run -d -p 3000:3000 -p 8000:8000 --name ft_transcendence ft_transcendence
 stop:

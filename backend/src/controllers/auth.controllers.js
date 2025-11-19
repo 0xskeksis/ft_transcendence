@@ -32,7 +32,7 @@ export async function createDatabase(){
 }
 
 export async function registerUser(request, reply){
-	const {username, email, password} = request.body;
+	const {username, email, password} = request.body ?? {};
 	const re = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
 
 
@@ -65,31 +65,36 @@ export async function registerUser(request, reply){
 }
 
 export async function verifyUser(request, reply){
-	const { email, password } = request.body;
+	try {
+		const { email, password } = request.body ?? {};
 
-	if (!email || !password)
-		return reply.status(400).send({ error: "Missing Field" });
+		if (!email || !password)
+			return reply.status(400).send({ error: "Missing Field" });
 
-	const stmt = db.prepare("SELECT id, username, email, password FROM users WHERE email = ?");
-	const user = stmt.get(email);
+		const stmt = db.prepare("SELECT id, username, email, password FROM users WHERE email = ?");
+		const user = stmt.get(email);
 
-	if (!user)
-		return reply.status(401).send({ error: "Invalid Credentials" });
+		if (!user)
+			return reply.status(401).send({ error: "Invalid Credentials" });
 
-	if (!checkPassword(user, password))
-		return reply.status(401).send({ error: "Invalid Credentials" });
+		if (!checkPassword(user, password))
+			return reply.status(401).send({ error: "Invalid Credentials" });
 
-	const token = jwt.sign(
-		{ id: user.id, email: user.email, username: user.username },
-		SECRET,
-		{ expiresIn: "1h" }
-	);
+		const token = jwt.sign(
+			{ id: user.id, email: user.email, username: user.username },
+			SECRET,
+			{ expiresIn: "1h" }
+		);
 
-	return reply.send({
-		success: true,
-		message: "User successfully logged in!",
-		token,
-	});
+		return reply.send({
+			success: true,
+			message: "User successfully logged in!",
+			token,
+		});
+	}catch(e){
+		request.log.error(e);
+		return reply.code(500).send({ error: "Internal server error" });
+	}
 }
 
 export async function deleteUser(request, reply){
