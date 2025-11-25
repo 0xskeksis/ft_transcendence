@@ -37,7 +37,7 @@ export async function registerUser(request, reply){
 
 
 	if (!username || !email || !password)
-		return reply.status(400).send({error: "Missing Field"});
+		return reply.status(400).send({error: "Missing Field in Controllers"});
 	if (blacklist.some(word => username.includes(word)))
 		return reply.status(400).send({error: "This username is strickly forbidden"});
 	if (password.length < MIN_PASSWORD_LENGTH)
@@ -54,14 +54,17 @@ export async function registerUser(request, reply){
 		const userId = db.prepare("SELECT id FROM users WHERE email = ?").get(email).id;
 		db.prepare("INSERT INTO users_stats (id, games_played, games_wins) VALUES (?, 0, 0)").run(userId);
 
-		return {success: true, message: "User successfuly created !" };
+		//debug db
+		const rows = db.prepare("SELECT * FROM users").all()
+		return reply.send({users: rows});
+		// return {success: true, message: "User successfuly created !" };
 	}catch (err) {
-		console.log("SQLite error :", err);
 		if (err.code === "SQLITE_CONSTRAINT_UNIQUE" || err.code == "SQLITE_CONSTRAINT"){
 			return reply.status(400).send({error: "Failed to create the users"})
 		}
 		return reply.status(500).send({error: "Internal Error"})
 	}
+
 }
 
 export async function verifyUser(request, reply){

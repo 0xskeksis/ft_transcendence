@@ -9,19 +9,19 @@
 
 build:
 	@printf " $(YELLOW)$(BOLD)$(ITALIC)■$(RESET)  Building the project $(YELLOW)$(BOLD)$(ITALIC)$(RESET)\n"
-	docker build -f backend/Dockerfile -t ft_transcendence .
-run:
-	docker run -d -p 3000:3000 -p 8000:8000 --name ft_transcendence ft_transcendence
-stop:
-	docker stop ft_transcendence || true
-delete:
-	docker rm ft_transcendence || true
-clean: stop
-	docker rmi ft_transcendence || true
-re: stop delete build run
+	docker compose build
+up:
+	docker compose up -d
+down:
+	docker compose down --remove-orphans
+re: down build up
 
-deploy:
-	docker-compose up --build
+clean: down
+	docker image prune -f
+
+# WARNING: delete all the images, this command can erase the database
+clean-images:
+	docker system prune -a --volumes
 
 
 

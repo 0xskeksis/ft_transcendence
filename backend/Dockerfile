@@ -8,7 +8,7 @@ COPY package*.json ./
 
 RUN npm install --omit=dev && npm cache clean --force
 
-COPY /backend /app
+COPY backend /app
 
 #Production stage
 FROM node:20 AS production
@@ -35,4 +35,3 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 
 #Starting Application
 CMD ["node", "src/app.js"]
-
