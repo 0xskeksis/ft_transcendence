@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/18 17:47:38 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/26 16:21:09 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/11/26 17:18:29 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <Game.hpp>
@@ -63,7 +63,7 @@ Napi::Object Update(const Napi::CallbackInfo& info)
 	Game &game = gameMap[id];
 	game.update(linput, rinput);
 	
-	returnData.Set("status", game.getStatus());
+	returnData.Set("status", (int)game.getStatus());
 	returnData.Set("lscore", game.getScore().first);
 	returnData.Set("rscore", game.getScore().second);
 
