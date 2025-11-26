@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 14:47:04 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/25 22:25:07 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/11/26 18:41:25 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <Application.h>
@@ -22,7 +22,6 @@ void create_app()
 	App.curl = curl_easy_init();
 	App.gtk = gtk_application_new("pong.cli", G_APPLICATION_DEFAULT_FLAGS);
 	App.Inputs = malloc(sizeof(*App.Inputs));
-	App.gameId = 0;
 	memset(App.Inputs, 0, sizeof(*App.Inputs));
 }
 

@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 14:44:25 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/25 21:56:10 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/11/26 18:41:18 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #pragma once
@@ -32,6 +32,7 @@ typedef struct
 		float	bposy;
 	}	GameState;
 	int gameId;
+	int side;
 } t_App;
 
 extern t_App App;
