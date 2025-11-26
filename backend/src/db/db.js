@@ -1,5 +1,10 @@
 import Database from 'better-sqlite3'
-const db = new Database('../db/database.db')
+import path from 'path'
+
+const dbPath = path.resolve('/data/database.db'); // chemin absolu
+
+
+const db = new Database('/data/database.db')
 db.pragma("journal_mode = WAL") //Performances reasons
 db.pragma("foreign_keys = ON")
 

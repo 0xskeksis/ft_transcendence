@@ -27,6 +27,10 @@ apiServer.listen({ port: API_PORT }, (err, address) => {
 	if (err) {
 		apiServer.log.error(err);
 		process.exit(1);
+await fastify.listen({ port: PORT, host: '0.0.0.0' }, function (err, address){
+	if (err){
+		fastify.log(err)
+		process.exit(1)
 	}
 	tick();
 	apiServer.log.info(`API server listening on ${address}`);

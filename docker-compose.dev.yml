@@ -1,0 +1,57 @@
+
+services:
+  backend:
+    container_name: backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data/sqlite:/data
+      - ./nginx/certs:/certs 
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  frontend:
+    container_name: frontend
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data/sqlite:/app/data
+      - ./nginx/certs:/certs 
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  #
+  # api:
+  #   build: ./docker/api
+  #   ports:
+  #     - "8000:8000"
+  #   environment:
+  #     - NODE_ENV=production
+  #     - PORT=8000
+  #   volumes:
+  #     - sqlite_data:/app/db
+  #   networks:
+  #     - app-network
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ["CMD", "node", "-e", "require('http').get('http://localhost:8000', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+  #     interval: 30s
+  #     timeout: 10s
+      # retries: 3
+
+
+volumes:
+  sqlite_data:
+
+networks:
+  app-network:
+    driver: bridge
+

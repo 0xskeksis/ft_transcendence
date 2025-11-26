@@ -1,4 +1,4 @@
-import jwt from 'jsonwentoken'
+import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 
 dotenv.config()
@@ -17,5 +17,18 @@ export function authenticateToken(request, reply, next) {
 		next();
 	}catch (err) {
 		return reply.status(403).send({ error: "Invalid or expired token" });
+	}
+}
+
+export function checkRequestIntegrity(requireFields){
+	return (request, reply, done) => {
+		if (!request.body) {
+            return reply.status(400).send({ error: "Missing body in middleware" });
+        }
+		for (const field of requireFields){
+			if (!(field in request.body))
+				return reply.status(400).send({error: "Missing field"})
+		}
+		done();
 	}
 }
