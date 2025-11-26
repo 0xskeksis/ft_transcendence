@@ -8,6 +8,8 @@ COPY ./backend/package*.json ./
 
 RUN npm install --omit=dev && npm cache clean --force
 
+RUN npm rebuild
+
 COPY backend /app
 
 #Production stage
@@ -35,4 +37,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
 
 #Starting Application
-CMD ["node", "src/app.js"]
+
+# CMD ["node", "src/app.js"]
+
+CMD ["npm", "run", "dev"]
