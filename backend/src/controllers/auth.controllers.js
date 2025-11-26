@@ -32,12 +32,12 @@ export async function createDatabase(){
 }
 
 export async function registerUser(request, reply){
-	const {username, email, password} = request.body;
+	const {username, email, password} = request.body ?? {};
 	const re = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
 
 
 	if (!username || !email || !password)
-		return reply.status(400).send({error: "Missing Field"});
+		return reply.status(400).send({error: "Missing Field in Controllers"});
 	if (blacklist.some(word => username.includes(word)))
 		return reply.status(400).send({error: "This username is strickly forbidden"});
 	if (password.length < MIN_PASSWORD_LENGTH)
@@ -49,47 +49,56 @@ export async function registerUser(request, reply){
 		const stmt  = db.prepare(
 			"INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
 
-		stmt.run(username, email, hashedPass);
+		const info = stmt.run(username, email, hashedPass);
 
-		const userId = db.prepare("SELECT id FROM users WHERE email = ?").get(email).id;
+		const userId = info.lastInsertRowid;
 		db.prepare("INSERT INTO users_stats (id, games_played, games_wins) VALUES (?, 0, 0)").run(userId);
 
-		return {success: true, message: "User successfuly created !" };
+		//debug db
+		const rows = db.prepare("SELECT * FROM users").all()
+		return reply.send({users: rows});
+		// return {success: true, message: "User successfuly created !" };
 	}catch (err) {
-		console.log("SQLite error :", err);
 		if (err.code === "SQLITE_CONSTRAINT_UNIQUE" || err.code == "SQLITE_CONSTRAINT"){
 			return reply.status(400).send({error: "Failed to create the users"})
 		}
+		console.log(err);
 		return reply.status(500).send({error: "Internal Error"})
 	}
+
 }
 
 export async function verifyUser(request, reply){
-	const { email, password } = request.body;
+	try {
+		const { email, password } = request.body ?? {};
 
-	if (!email || !password)
-		return reply.status(400).send({ error: "Missing Field" });
+		if (!email || !password)
+			return reply.status(400).send({ error: "Missing Field" });
 
-	const stmt = db.prepare("SELECT id, username, email, password FROM users WHERE email = ?");
-	const user = stmt.get(email);
+		const stmt = db.prepare("SELECT id, username, email, password FROM users WHERE email = ?");
+		const user = stmt.get(email);
 
-	if (!user)
-		return reply.status(401).send({ error: "Invalid Credentials" });
+		if (!user)
+			return reply.status(401).send({ error: "Invalid Credentials" });
 
-	if (!checkPassword(user, password))
-		return reply.status(401).send({ error: "Invalid Credentials" });
+		if (!checkPassword(user, password))
+			return reply.status(401).send({ error: "Invalid Credentials" });
 
-	const token = jwt.sign(
-		{ id: user.id, email: user.email, username: user.username },
-		SECRET,
-		{ expiresIn: "1h" }
-	);
+		const token = jwt.sign(
+			{ id: user.id, email: user.email, username: user.username },
+			SECRET,
+			{ expiresIn: "1h" }
+		);
 
-	return reply.send({
-		success: true,
-		message: "User successfully logged in!",
-		token,
-	});
+		return reply.send({
+			success: true,
+			message: "User successfully logged in!",
+			token,
+		});
+	}catch(e){
+		request.log.error(e);
+		return reply.code(500).send({ error: "Internal server error" });
+	}
 }
 
 export async function deleteUser(request, reply){

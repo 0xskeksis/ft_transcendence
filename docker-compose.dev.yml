@@ -8,7 +8,6 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./backend/src:/app/src #Only for the hot-reload
       - ./data/sqlite:/data
       - ./nginx/certs:/certs 
     networks:
