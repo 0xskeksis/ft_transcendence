@@ -7,8 +7,10 @@ services:
       dockerfile: backend/Dockerfile
     ports:
       - "3000:3000"
+      - "8000:8000"
     volumes:
       - ./backend/src:/app/src #Only for the hot-reload
+      - /app/src/pong
       - ./data/sqlite:/data
       - ./nginx/certs:/certs 
     networks:
@@ -21,7 +23,7 @@ services:
       context: .
       dockerfile: frontend/Dockerfile
     ports:
-      - "8000:8000"
+      - "5000:5000"
     volumes:
       - ./data/sqlite:/app/data
       - ./nginx/certs:/certs 
