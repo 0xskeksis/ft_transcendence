@@ -8,7 +8,5 @@ export async function findUserByEmail(email){
 }
 
 export async function checkPassword(user, PlainPassword){
-	return await bcrypt.compare(plainedPassword, user.password);
+	return await bcrypt.compare(PlainPassword, user.password);
 }
-
-

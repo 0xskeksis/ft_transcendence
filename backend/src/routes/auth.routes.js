@@ -9,7 +9,7 @@ async function routes (fastify, options){
 		registerUser(request, reply);
 	})
 	
-	fastify.get('/login', async (request, reply) => {
+	fastify.post('/login', async (request, reply) => {
 		verifyUser(request, reply);
 	})
 }

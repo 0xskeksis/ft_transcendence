@@ -5,9 +5,8 @@ import {findUserByEmail, checkPassword} from "../utils/utils.controllers.js"
 import jwt from 'jsonwebtoken';
 
 const SALT_ROUNDS = 10;
-
-const MIN_PASSWORD_LENGTH = 12;
-
+const SECRET = 1
+const MIN_PASSWORD_LENGTH = 1;
 
 const	blacklist = [];
 blacklist.push("admin", "root", "support", "system", "moderator", "staff")
@@ -54,9 +53,8 @@ export async function registerUser(request, reply){
 		const userId = db.prepare("SELECT id FROM users WHERE email = ?").get(email).id;
 		db.prepare("INSERT INTO users_stats (id, games_played, games_wins) VALUES (?, 0, 0)").run(userId);
 
-		return {success: true, message: "User successfuly created !" };
+		return reply.send({success: true, message: "User successfuly created !" });
 	}catch (err) {
-		console.log("SQLite error :", err);
 		if (err.code === "SQLITE_CONSTRAINT_UNIQUE" || err.code == "SQLITE_CONSTRAINT"){
 			return reply.status(400).send({error: "Failed to create the users"})
 		}
@@ -65,7 +63,7 @@ export async function registerUser(request, reply){
 }
 
 export async function verifyUser(request, reply){
-	const { email, password } = request.body;
+	const { email, password, jwt } = request.body;
 
 	if (!email || !password)
 		return reply.status(400).send({ error: "Missing Field" });
@@ -74,22 +72,32 @@ export async function verifyUser(request, reply){
 	const user = stmt.get(email);
 
 	if (!user)
-		return reply.status(401).send({ error: "Invalid Credentials" });
+		return reply.status(401).send({ error: "Invalid Credentials User" });
 
 	if (!checkPassword(user, password))
-		return reply.status(401).send({ error: "Invalid Credentials" });
+		return reply.status(401).send({ error: "Invalid Credentials Passwd" });
 
-	const token = jwt.sign(
-		{ id: user.id, email: user.email, username: user.username },
-		SECRET,
-		{ expiresIn: "1h" }
-	);
+	if (jwt == true)
+	{
+		const token = jwt.sign(
+			{ id: user.id, email: user.email, username: user.username },
+			SECRET,
+			{ expiresIn: "1h" }
+		);
+		return reply.send({
+			success: true,
+			message: "User successfully logged in!",
+			token,
+		});
+	}
+	else
+	{
+		return reply.send({
+			success: true,
+			message: "User successfully logged in!"
+		});
+	}
 
-	return reply.send({
-		success: true,
-		message: "User successfully logged in!",
-		token,
-	});
 }
 
 export async function deleteUser(request, reply){
