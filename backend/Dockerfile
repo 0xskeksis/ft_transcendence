@@ -8,8 +8,6 @@ COPY ./backend/package*.json ./
 
 RUN npm install --omit=dev && npm cache clean --force
 
-RUN npm rebuild
-
 COPY backend /app
 
 #Production stage
@@ -39,5 +37,8 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 #Starting Application
 
 # CMD ["node", "src/app.js"]
-
+CMD ["cd", "src/pong"]
+CMD ["npx", "node-gyp", "configure"]
+CMD ["npx", "node-gyp", "build"]
+CMD ["cd", "-"]
 CMD ["npm", "run", "dev"]
