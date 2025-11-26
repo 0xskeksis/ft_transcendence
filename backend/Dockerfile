@@ -4,7 +4,7 @@ FROM node:20 AS builder
 #Set working directory
 WORKDIR /app
 
-COPY package*.json ./
+COPY ./backend/package*.json ./
 
 RUN npm install --omit=dev && npm cache clean --force
 
@@ -18,6 +18,7 @@ WORKDIR /app
 #Create non-root user
 RUN groupadd -g 1001 nodejs && \
 	useradd -m -u 1001 -g nodejs nextjs
+
 
 COPY --from=builder --chown=nextjs:nodejs /app /app
 

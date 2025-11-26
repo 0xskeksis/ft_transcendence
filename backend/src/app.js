@@ -1,10 +1,10 @@
 import Fastify from 'fastify';
 import routes from './routes/auth.routes.js'
-// import {createDatabase} from './controllers/auth.controllers.js'
+import {createDatabase} from './controllers/auth.controllers.js'
 
 const PORT = 3000
 
-// createDatabase();
+createDatabase();
 
 const fastify = Fastify();
 

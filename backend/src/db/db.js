@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3'
 import path from 'path'
 
-const dbPath = path.resolve('/app/data/database.db'); // chemin absolu
+const dbPath = path.resolve('/data/database.db'); // chemin absolu
 
 
 const db = new Database('/data/database.db')

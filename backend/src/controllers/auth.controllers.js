@@ -49,9 +49,9 @@ export async function registerUser(request, reply){
 		const stmt  = db.prepare(
 			"INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
 
-		stmt.run(username, email, hashedPass);
+		const info = stmt.run(username, email, hashedPass);
 
-		const userId = db.prepare("SELECT id FROM users WHERE email = ?").get(email).id;
+		const userId = info.lastInsertRowid;
 		db.prepare("INSERT INTO users_stats (id, games_played, games_wins) VALUES (?, 0, 0)").run(userId);
 
 		//debug db
@@ -62,6 +62,7 @@ export async function registerUser(request, reply){
 		if (err.code === "SQLITE_CONSTRAINT_UNIQUE" || err.code == "SQLITE_CONSTRAINT"){
 			return reply.status(400).send({error: "Failed to create the users"})
 		}
+		console.log(err);
 		return reply.status(500).send({error: "Internal Error"})
 	}
 
