@@ -5,9 +5,8 @@ import {findUserByEmail, checkPassword} from "../utils/utils.controllers.js"
 import jwt from 'jsonwebtoken';
 
 const SALT_ROUNDS = 10;
-
-const MIN_PASSWORD_LENGTH = 12;
-
+const SECRET = 1
+const MIN_PASSWORD_LENGTH = 1;
 
 const	blacklist = [];
 blacklist.push("admin", "root", "support", "system", "moderator", "staff")
@@ -54,6 +53,7 @@ export async function registerUser(request, reply){
 		const userId = info.lastInsertRowid;
 		db.prepare("INSERT INTO users_stats (id, games_played, games_wins) VALUES (?, 0, 0)").run(userId);
 
+		return reply.send({success: true, message: "User successfuly created !" });
 		//debug db
 		const rows = db.prepare("SELECT * FROM users").all()
 		return reply.send({users: rows});
@@ -70,7 +70,7 @@ export async function registerUser(request, reply){
 
 export async function verifyUser(request, reply){
 	try {
-		const { email, password } = request.body ?? {};
+		const { email, password} = request.body ?? {};
 
 		if (!email || !password)
 			return reply.status(400).send({ error: "Missing Field" });
@@ -89,7 +89,6 @@ export async function verifyUser(request, reply){
 			SECRET,
 			{ expiresIn: "1h" }
 		);
-
 		return reply.send({
 			success: true,
 			message: "User successfully logged in!",
