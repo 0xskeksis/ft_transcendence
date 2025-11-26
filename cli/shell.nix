@@ -4,7 +4,7 @@ pkgs.mkShell {
   name = "gtk-dev-env";
 
   packages = with pkgs; [
-    clang
+    clang_17
     pkg-config
     gtk4
     glib
@@ -17,9 +17,14 @@ pkgs.mkShell {
 	curl
 	cjson
 	valgrind
+	glibcLocales
   ];
 
   shellHook = ''
+	export LOCALE_ARCHIVE="${pkgs.glibcLocales}/lib/locale/locale-archive"
+	export LANG="en_US.UTF-8"
+	export LC_ALL="en_US.UTF-8"
+	export GSK_RENDERER=cairo
 	clear
 	zsh
   '';
