@@ -11,7 +11,7 @@ services:
     volumes:
       - ./backend/src:/app/src #Only for the hot-reload
       - /app/src/pong
-      - ./data/sqlite:/data
+      - ./data/sqlite:/app/data
       - ./nginx/certs:/certs 
     networks:
       - app-network

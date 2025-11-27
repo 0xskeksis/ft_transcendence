@@ -20,7 +20,7 @@ async function routes (fastify, options){
 		preHandler: checkRequestIntegrity(['email', 'password'])
 		
 	},
-	async (request, reply) => {
+	(request, reply) => {
 		verifyUser(request, reply);
 	})
 }
