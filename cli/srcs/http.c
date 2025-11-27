@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 16:25:51 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/25 23:17:21 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/11/27 15:28:26 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <defines.h>
@@ -72,8 +72,10 @@ static int do_curl_post(char *url, char *data)
 int get_game_data()
 {
 	char response[RESPONSE_SIZE];
+	char body[64];	
 
-	int res = do_curl_get(PONG_GET"?game_id=0", response);
+	snprintf(body, sizeof(body), PONG_GET"?game_id=%d", App.gameId);
+	int res = do_curl_get(body, response);
 	if (res)
 		return 1;
 
@@ -94,7 +96,7 @@ int get_game_data()
 int post_input(int input)
 {
 	char body[50];
-	snprintf(body, sizeof(body), "{\"game_id\":%d,\"input\":%d,\"side\":0}", App.gameId, input);
+	snprintf(body, sizeof(body), "{\"game_id\":%d,\"input\":%d,\"side\":%d}", App.gameId, input, App.side);
 	int res = do_curl_post(PONG_POST, body);
 	if (res)
 		return 1;

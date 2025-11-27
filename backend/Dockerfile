@@ -1,43 +1,41 @@
-#Build Stage
+# =========================
+# Stage: builder
+# =========================
 FROM node:20 AS builder
-
-#Set working directory
 WORKDIR /app
 
 COPY ./backend/package*.json ./
-
 RUN npm install --omit=dev && npm cache clean --force
-
-RUN npm rebuild
 
 COPY backend /app
 
-#Production stage
-FROM node:20 AS production
+# Build native addon
+WORKDIR /app/src/pong
+RUN npx node-gyp configure && npx node-gyp build
 
+# =========================
+# Stage: production
+# =========================
+FROM node:20 AS production
 WORKDIR /app
 
-#Create non-root user
+# create user
 RUN groupadd -g 1001 nodejs && \
-	useradd -m -u 1001 -g nodejs nextjs
+    useradd -m -u 1001 -g nodejs nextjs
+
+# copy app files
+COPY --from=builder /app /app
 
 
-COPY --from=builder --chown=nextjs:nodejs /app /app
+# copy addon explicitly and fix permissions
+COPY --from=builder --chown=nextjs:nodejs \
+    /app/src/pong/build/Release/addon.node \
+    /app/src/pong/build/Release/addon.node
 
-#Switch to non-root user
 USER nextjs
 
-#Expose port
-EXPOSE 3000
 
-EXPOSE 8000
-
-# Add health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
-
-#Starting Application
-
-# CMD ["node", "src/app.js"]
+EXPOSE 3000 8000
 
 CMD ["npm", "run", "dev"]
+

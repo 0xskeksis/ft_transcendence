@@ -6,7 +6,7 @@
 //   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2025/11/10 20:07:25 by ellanglo          #+#    #+#             //
-//   Updated: 2025/11/26 16:29:34 by ellanglo         ###   ########.fr       //
+//   Updated: 2025/11/27 15:56:03 by ellanglo         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 import { createRequire } from "module";
@@ -36,7 +36,7 @@ function Game(id1, id2)
 	this.status = 0;
 }
 
-async function getGame(id)
+async function getGame(id, reply)
 {
 	wrap.game = g_game_map.get(id);
 	let game = wrap.game;
@@ -68,7 +68,7 @@ export async function tick()
 export async function getGameData(request, reply)
 {
 	const game_id = Number(request.query.game_id);
-	const rpl = await getGame(game_id);
+	const rpl = await getGame(game_id, reply);
 	if (rpl !== 0)
 		return rpl;
 	let data = GetGameData(wrap.game.id);
@@ -78,7 +78,7 @@ export async function getGameData(request, reply)
 export async function sendInput(request, reply)
 {
 	const { game_id, input, side } = request.body;
-	const rpl = await getGame(game_id);
+	const rpl = await getGame(game_id, reply);
 	if (rpl !== 0)
 		return rpl;
 	let game = wrap.game;
@@ -107,7 +107,7 @@ export async function createGame(request, reply)
 export async function startGame(request, reply)
 {
 	const { game_id } = request.body;
-	const rpl = await getGame(game_id);
+	const rpl = await getGame(game_id, reply);
 	if (rpl !== 0)
 		return rpl;
 	let game = wrap.game;
@@ -119,7 +119,7 @@ export async function startGame(request, reply)
 export async function endGame(request, reply)
 {
 	const { game_id } = request.body;
-	const rpl = await getGame(game_id);
+	const rpl = await getGame(game_id, reply);
 	if (rpl !== 0)
 		return rpl;
 	let game = wrap.game;

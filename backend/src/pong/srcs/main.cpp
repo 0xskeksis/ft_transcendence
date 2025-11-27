@@ -6,13 +6,14 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/18 17:47:38 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/26 16:21:09 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/11/27 15:57:42 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <Game.hpp>
 #include <map>
 #include <napi.h>
 #include <random>
+#include <iostream>
 
 std::map<int, Game> gameMap;
 
@@ -52,22 +53,62 @@ Napi::Object GetGameData(const Napi::CallbackInfo& info)
 
 Napi::Object Update(const Napi::CallbackInfo& info)
 {
-	Napi::Object gameObj = info[0].As<Napi::Object>();
+    Napi::Env env = info.Env();
 
-	int id = gameObj.Get("id").As<Napi::Number>();
-	int linput = gameObj.Get("linput").As<Napi::Number>();
-	int rinput = gameObj.Get("rinput").As<Napi::Number>();
+    // Validation d'entrée
+	/*
+    if (info.Length() < 1 || !info[0].IsObject()) {
+        Napi::TypeError::New(env, "Update expects one object argument")
+            .ThrowAsJavaScriptException();
+        return Napi::Object::New(env);
+    }*/
 
+    Napi::Object gameObj = info[0].As<Napi::Object>();
+	/*
+    if (!gameObj.Has("id") || !gameObj.Has("linput") || !gameObj.Has("rinput")) {
+        Napi::TypeError::New(env, "Object must have id, linput and rinput")
+            .ThrowAsJavaScriptException();
+        return Napi::Object::New(env);
+    }
+	*/
 
-	Napi::Object returnData;
-	Game &game = gameMap[id];
-	game.update(linput, rinput);
-	
-	returnData.Set("status", game.getStatus());
-	returnData.Set("lscore", game.getScore().first);
-	returnData.Set("rscore", game.getScore().second);
+    int id     = gameObj.Get("id").As<Napi::Number>().Int32Value();
+    int linput = gameObj.Get("linput").As<Napi::Number>().Int32Value();
+    int rinput = gameObj.Get("rinput").As<Napi::Number>().Int32Value();
+	/*
+    std::cerr << "[addon] Update called id=" << id 
+              << " linput=" << linput 
+              << " rinput=" << rinput << std::endl;
 
-	return returnData;
+    // Vérifier que gameMap contient l'id
+    */
+	auto it = gameMap.find(id);
+	/*
+    if (it == gameMap.end()) {
+        std::string msg = "Game id not found: " + std::to_string(id);
+        std::cerr << "[addon] " << msg << std::endl;
+        Napi::Error::New(env, msg).ThrowAsJavaScriptException();
+        return Napi::Object::New(env);
+    }
+	*/
+
+    Game &game = it->second;
+
+    // Exécution de la logique jeu (aucun try/catch)
+    game.update(linput, rinput);
+
+    //std::cerr << "[addon] update done, preparing return object" << std::endl;
+
+    Napi::Object returnData = Napi::Object::New(env);
+    returnData.Set("status", Napi::Number::New(env, (int)game.getStatus()));
+
+    auto score = game.getScore();
+    returnData.Set("lscore", Napi::Number::New(env, score.first));
+    returnData.Set("rscore", Napi::Number::New(env, score.second));
+
+    //std::cerr << "[addon] returning success object" << std::endl;
+
+    return returnData;
 }
 
 Napi::Value SetBallPos(const Napi::CallbackInfo& info)

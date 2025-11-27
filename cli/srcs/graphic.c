@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 15:04:51 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/25 23:13:15 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/11/26 17:57:25 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <Application.h>
@@ -15,6 +15,15 @@
 #include <defines.h>
 #include <stdio.h>
 #include <http.h>
+
+static void app_open(GtkApplication *app,
+                    UNUSED GFile **files,
+                    UNUSED gint n_files,
+                    UNUSED const gchar *hint,
+                    UNUSED gpointer user_data)
+{
+	g_signal_emit_by_name(app, "activate");
+}
 
 static gboolean on_key_press(UNUSED GtkEventControllerKey *controller, guint keyval, UNUSED guint keycode, UNUSED GdkModifierType state, gpointer user_data) 
 {
@@ -139,6 +148,7 @@ static void run_gtk(UNUSED GtkApplication *app, UNUSED gpointer user_data)
 
 void init_gtk(int argc, char **argv)
 {
+	g_signal_connect(App.gtk, "open", G_CALLBACK(app_open), NULL);
 	g_signal_connect(App.gtk, "activate", G_CALLBACK(run_gtk), NULL);
 	g_application_run(G_APPLICATION(App.gtk), argc, argv);
 }
