@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 16:31:29 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/26 18:41:00 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/11/27 15:59:24 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #pragma once
@@ -15,7 +15,7 @@
 #define STR(x) STR_HELPER(x)
 
 #define RESPONSE_SIZE				512
-#define SERVER_BASE					"http://10.11.4.2:"
+#define SERVER_BASE					"http://10.13.6.3:"
 #define LOGIN_PORT					3000
 #define API_PORT					8000
 #define PONG						SERVER_BASE STR(API_PORT) "/pong"

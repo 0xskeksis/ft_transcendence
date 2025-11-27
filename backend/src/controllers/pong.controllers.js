@@ -6,7 +6,7 @@
 //   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2025/11/10 20:07:25 by ellanglo          #+#    #+#             //
-//   Updated: 2025/11/26 19:00:35 by ellanglo         ###   ########.fr       //
+//   Updated: 2025/11/27 15:56:03 by ellanglo         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 import { createRequire } from "module";
