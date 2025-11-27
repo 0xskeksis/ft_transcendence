@@ -26,12 +26,14 @@ RUN groupadd -g 1001 nodejs && \
 # copy app files
 COPY --from=builder /app /app
 
+
 # copy addon explicitly and fix permissions
 COPY --from=builder --chown=nextjs:nodejs \
     /app/src/pong/build/Release/addon.node \
     /app/src/pong/build/Release/addon.node
 
 USER nextjs
+
 
 EXPOSE 3000 8000
 

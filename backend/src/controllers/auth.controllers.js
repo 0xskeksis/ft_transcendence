@@ -5,7 +5,7 @@ import {findUserByEmail, checkPassword} from "../utils/utils.controllers.js"
 import jwt from 'jsonwebtoken';
 
 const SALT_ROUNDS = 10;
-const SECRET = 1
+const SECRET = "8fh328h78&fgdshfgsj"
 const MIN_PASSWORD_LENGTH = 1;
 
 const	blacklist = [];
@@ -53,7 +53,7 @@ export async function registerUser(request, reply){
 		const userId = info.lastInsertRowid;
 		db.prepare("INSERT INTO users_stats (id, games_played, games_wins) VALUES (?, 0, 0)").run(userId);
 
-		return reply.send({success: true, message: "User successfuly created !" });
+		// return reply.send({success: true, message: "User successfuly created !" });
 		//debug db
 		const rows = db.prepare("SELECT * FROM users").all()
 		return reply.send({users: rows});
@@ -81,21 +81,23 @@ export async function verifyUser(request, reply){
 		if (!user)
 			return reply.status(401).send({ error: "Invalid Credentials" });
 
-		if (!checkPassword(user, password))
-			return reply.status(401).send({ error: "Invalid Credentials" });
-
-		const token = jwt.sign(
+		const good = await checkPassword(user, password);
+		if (!good)
+			return reply.status(500).send({ error: "Invalid Credentials" });
+		const token = await jwt.sign(
 			{ id: user.id, email: user.email, username: user.username },
 			SECRET,
 			{ expiresIn: "1h" }
 		);
-		return reply.send({
+		const obj = {
 			success: true,
 			message: "User successfully logged in!",
 			token,
-		});
+		}
+		console.log(obj)
+		return reply.send(obj);
 	}catch(e){
-		request.log.error(e);
+		console.log(e);
 		return reply.code(500).send({ error: "Internal server error" });
 	}
 }
