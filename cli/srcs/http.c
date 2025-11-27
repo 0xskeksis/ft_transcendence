@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 16:25:51 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/26 18:41:45 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/11/27 15:28:26 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <defines.h>
@@ -72,8 +72,10 @@ static int do_curl_post(char *url, char *data)
 int get_game_data()
 {
 	char response[RESPONSE_SIZE];
+	char body[64];	
 
-	int res = do_curl_get(PONG_GET"?game_id=0", response);
+	snprintf(body, sizeof(body), PONG_GET"?game_id=%d", App.gameId);
+	int res = do_curl_get(body, response);
 	if (res)
 		return 1;
 
