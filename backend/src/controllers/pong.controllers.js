@@ -6,7 +6,7 @@
 //   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2025/11/10 20:07:25 by ellanglo          #+#    #+#             //
-//   Updated: 2025/11/27 15:56:03 by ellanglo         ###   ########.fr       //
+//   Updated: 2025/11/27 17:31:16 by ellanglo         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 import { createRequire } from "module";
@@ -21,7 +21,7 @@ export const SetBallPos = addon.SetBallPos;
 export const StartGame = addon.StartGame;
 export const EndGame = addon.EndGame;
 
-let g_last_id = 0;
+let g_last_id = 1;
 let g_game_map = new Map();
 let wrap = { game: null };
 
@@ -113,6 +113,7 @@ export async function startGame(request, reply)
 	let game = wrap.game;
 	game.status = 1;
 	StartGame(game.id);	
+	console.log(game);
 	return 1;
 }
 
