@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 16:25:51 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/27 15:28:26 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/11/27 19:08:28 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <defines.h>
@@ -75,6 +75,7 @@ int get_game_data()
 	char body[64];	
 
 	snprintf(body, sizeof(body), PONG_GET"?game_id=%d", App.gameId);
+	printf("%s\n", body);
 	int res = do_curl_get(body, response);
 	if (res)
 		return 1;

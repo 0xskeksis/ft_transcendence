@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/09 18:48:19 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/26 18:42:06 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/11/27 18:59:53 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <http.h>
@@ -17,6 +17,7 @@
 #include <graphic.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <gestion.h>
 
 void close_app()
 {
@@ -26,10 +27,15 @@ void close_app()
 
 int main(int ac, char **av)
 {
+	(void)ac;
+	(void)av;
 	create_app();
+	/*
 	App.gameId = atoi(av[1]);
 	App.side = atoi(av[2]);
 	init_gtk(ac, av);
+	*/
+	user_register_sequence();
 }
 
 /*
