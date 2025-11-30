@@ -3,7 +3,8 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-export function authenticateToken(request, reply, next) {
+
+export function authenticateToken(request, reply) {
 	const	authHeader = request.headers["authorization"];
 	const	token = authHeader && authHeader.split(" ")[1];
 
@@ -13,7 +14,6 @@ export function authenticateToken(request, reply, next) {
 	try{
 		const decoded = jwt.verify(token, SECRET);
 		request.user = decoded;
-		next();
 	}catch (err) {
 		return reply.status(403).send({ error: "Invalid or expired token" });
 	}
