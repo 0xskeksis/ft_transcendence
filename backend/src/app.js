@@ -3,14 +3,20 @@ import routes from './routes/auth.routes.js'
 import pong_routes from './routes/pong.routes.js'
 import {createDatabase} from './controllers/auth.controllers.js'
 import {tick} from './controllers/pong.controllers.js'
+import fs from 'fs'
 
 const APP_PORT = 3000
 const API_PORT = 8000
 
 createDatabase();
 
+const httpsOptions = {
+  key: fs.readFileSync('/certs/key.pem'),
+  cert: fs.readFileSync('/certs/cert.pem')
+};
+
 // --- Serveur pour le login ---
-const loginServer = Fastify();
+const loginServer = Fastify({https: httpsOptions});
 loginServer.register(routes);
 loginServer.listen({ port: APP_PORT, host: '0.0.0.0'}, (err, address) => {
 	if (err) {

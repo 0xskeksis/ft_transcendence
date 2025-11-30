@@ -22,11 +22,11 @@ export function authenticateToken(request, reply) {
 export function checkRequestIntegrity(requireFields){
 	return (request, reply, done) => {
 		if (!request.body) {
-            return reply.status(400).send({ error: "Missing body in middleware" });
+            return reply.status(501).send({ error: "Missing body in middleware" });
         }
 		for (const field of requireFields){
 			if (!(field in request.body))
-				return reply.status(400).send({error: "Missing field"})
+				return reply.status(403).send({error: "Missing field"})
 		}
 		done();
 	}
