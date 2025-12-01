@@ -3,9 +3,11 @@ import bcrypt from 'bcrypt'
 import db from "../db/db.js"
 import {findUserByEmail, checkPassword} from "../utils/utils.controllers.js"
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 const SALT_ROUNDS = 10;
-const SECRET = "8fh328h78&fgdshfgsj"
 const MIN_PASSWORD_LENGTH = 1;
 
 const	blacklist = [];
@@ -17,7 +19,9 @@ export async function createDatabase(){
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			username TEXT NOT NULL UNIQUE,
 			email TEXT NOT NULL UNIQUE,
-			password TEXT NOT NULL
+			password TEXT NOT NULL,
+			two_fa INTEGER,
+			google_secret TEXT
 		);
 
 			CREATE TABLE IF NOT EXISTS users_stats (
