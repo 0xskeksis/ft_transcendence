@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 14:47:04 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/27 18:02:22 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/11/30 16:39:12 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <Application.h>
@@ -24,21 +24,24 @@ void create_app()
 	App.curl = curl_easy_init();
 
 	int fd = open("/dev/urandom", O_RDONLY);
-	char random[10];
+	char random[11];
 	int ret = read(fd, random, 10);
 	close(fd);
 	(void)ret;
 
 	for (int i = 0; i != 10; i++)
 		random[i] = (unsigned char)random[i] % 26 + 'A';
-
+	random[10] = '\0';
 	App.name = malloc(20 * sizeof(char));
 	snprintf(App.name, 20, "pong.cli.%s", random);
 
 	App.gtk = gtk_application_new(App.name, G_APPLICATION_DEFAULT_FLAGS | G_APPLICATION_HANDLES_OPEN);
 	
-	App.Inputs = malloc(sizeof(*App.Inputs));
-	memset(App.Inputs, 0, sizeof(*App.Inputs));
+	App.Inputs.up = 0;
+	App.Inputs.down = 0;
+
+	App.UserInfo.jwt = NULL;
+	App.UserInfo._2fa = false;
 }
 
 __attribute__((destructor))
@@ -47,6 +50,6 @@ void delete_app()
 	g_object_unref(App.gtk);
 	curl_easy_cleanup(App.curl);
 
-	free(App.Inputs);
 	free(App.name);
+	free(App.UserInfo.jwt);
 }

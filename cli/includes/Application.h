@@ -6,23 +6,25 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 14:44:25 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/27 17:46:17 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/11/30 16:21:02 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #pragma once
 
 #include <curl/curl.h>
 #include <gtk/gtk.h>
+#include <stdbool.h>
 
 typedef struct
 {
 	CURL *curl;
 	GtkApplication *gtk;
+	char *name;
 	struct
 	{
 		bool up;
 		bool down;
-	}	*Inputs;
+	}	Inputs;
 	struct
 	{
 		int		score;
@@ -31,9 +33,14 @@ typedef struct
 		float	bposx;
 		float	bposy;
 	}	GameState;
+	struct
+	{
+		char *jwt;
+		int	id;
+		bool _2fa;
+	}	UserInfo;
 	int gameId;
 	int side;
-	char *name;
 } t_App;
 
 extern t_App App;
@@ -41,3 +48,4 @@ extern t_App App;
 void delete_app();
 void close_app();
 void create_app();
+void prohibit_sig();

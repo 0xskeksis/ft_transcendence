@@ -17,7 +17,7 @@ async function routes (fastify, options){
 	fastify.post(
 	'/login',
 	{
-		preHandler: checkRequestIntegrity(['email', 'password'])
+		preHandler: checkRequestIntegrity(['username', 'password'])
 		
 	},
 	(request, reply) => {

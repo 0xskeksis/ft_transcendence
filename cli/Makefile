@@ -1,8 +1,8 @@
 # ==== Toolchain ====
 CXX      := clang
 CXXFLAGS := -g -Wall -Werror -Wextra
-GTK_CFLAGS := $(shell pkg-config --cflags gtk4 libcurl) -I$(shell pkg-config --variable=includedir gtk4)/../include/cjson
-GTK_LIBS   := $(shell pkg-config --libs gtk4 libcurl) -lcjson -lm
+GTK_CFLAGS := $(shell pkg-config --cflags libcjson gtk4 libcurl libjwt)
+GTK_LIBS   := $(shell pkg-config --libs gtk4 libcurl libjwt) -lcjson -lm -ljwt
 
 # ==== Project structure ====
 SRCDIR   := srcs

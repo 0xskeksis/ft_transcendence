@@ -6,7 +6,7 @@
 //   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2025/11/10 20:07:25 by ellanglo          #+#    #+#             //
-//   Updated: 2025/11/27 17:31:16 by ellanglo         ###   ########.fr       //
+//   Updated: 2025/11/30 17:16:49 by ellanglo         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 import { createRequire } from "module";
@@ -14,21 +14,21 @@ const require = createRequire(import.meta.url);
 
 const addon = require("../pong/build/Release/addon.node");
 
-export const GetRandomData = addon.GetRandomData;
 export const Update = addon.Update;
 export const GetGameData = addon.GetGameData;
 export const SetBallPos = addon.SetBallPos;
 export const StartGame = addon.StartGame;
 export const EndGame = addon.EndGame;
+export const NewGame = addon.NewGame;
 
 let g_last_id = 1;
 let g_game_map = new Map();
 let wrap = { game: null };
 
-function Game(id1, id2)
+function Game(id1)
 {
 	this.player1_id = id1;
-	this.player2_id = id2;
+	this.player2_id = -1;
 	this.id = g_last_id;
 	g_last_id++;
 	this.linput = 0;
@@ -53,11 +53,11 @@ export async function tick()
 	{
 		if (value.status == 1)
 		{
-			let gameData = Update(value);
+			const gameData = Update(value);
 			value.status = gameData.status;
 			if (value.status == 2)
 			{
-				let score = [gameData.lscore, gameData.rscore];
+				const score = [gameData.lscore, gameData.rscore];
 				//store score in blockchain
 			}
 		}
@@ -98,10 +98,24 @@ export async function setBallPos(request, reply)
 
 export async function createGame(request, reply)
 {
-	const { player1_id, player2_id} = request.body;
-	const game = new Game(player1_id, player2_id);
+	const { player_id } = request.body;
+	const game = new Game(player_id);
 	g_game_map.set(game.id, game);
+	NewGame(game.id);
 	return reply.send({id:game.id});
+}
+
+export async function joinGame(request, reply)
+{
+	const { game_id, player_id } = request.body;
+	const rpl = await getGame(game_id, reply);
+	if (rpl !== 0)
+		return rpl;
+	let game = wrap.game;
+	if (game.player1_id == player_id)
+		return reply.status(400).send({error:"Player aready in game"});
+	game.player2_id = player_id;
+	return 1;
 }
 
 export async function startGame(request, reply)
@@ -111,9 +125,10 @@ export async function startGame(request, reply)
 	if (rpl !== 0)
 		return rpl;
 	let game = wrap.game;
+	if (game.status != 0)
+		return reply.status(400).send({error:"Game already started or ended"});
 	game.status = 1;
 	StartGame(game.id);	
-	console.log(game);
 	return 1;
 }
 

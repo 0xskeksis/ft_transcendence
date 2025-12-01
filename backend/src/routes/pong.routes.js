@@ -1,4 +1,4 @@
-import {getGameData, sendInput, setBallPos, createGame, startGame} from '../controllers/pong.controllers.js'
+import {getGameData, sendInput, setBallPos, createGame, startGame, joinGame} from '../controllers/pong.controllers.js'
 
 async function pong_routes (fastify, options){
 	fastify.get('/pong/get-data', async (request, reply) => {
@@ -19,6 +19,10 @@ async function pong_routes (fastify, options){
 
 	fastify.post('/pong/start-game', async (request, reply) =>{
 		startGame(request, reply);
+	})
+
+	fastify.post('/pong/join-game', async (request, reply) => {
+		joinGame(request, reply);
 	})
 }
 

@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/09 18:48:19 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/27 18:59:53 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/11/30 16:21:14 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <http.h>
@@ -29,13 +29,14 @@ int main(int ac, char **av)
 {
 	(void)ac;
 	(void)av;
+	prohibit_sig();
 	create_app();
 	/*
 	App.gameId = atoi(av[1]);
 	App.side = atoi(av[2]);
 	init_gtk(ac, av);
 	*/
-	user_register_sequence();
+	user_menu();
 }
 
 /*

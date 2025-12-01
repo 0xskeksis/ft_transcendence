@@ -1,0 +1,12 @@
+[
+  {
+    "directory": "/home/ellanglo/Project/ft_transcendence/backend/src/pong/srcs",
+    "command": "g++ -std=c++17 -I/home/ellanglo/Project/ft_transcendence/backend/src/pong/includes -I/home/ellanglo/Project/ft_transcendence/backend/node_modules/node-addon-api -I/home/ellanglo/.cache/node-gyp/23.9.0/include/node -DNODE_GYP_MODULE_NAME=addon -DUSING_UV -DUSING_V8 -fPIC -Wall -Wextra -c /home/ellanglo/Project/ft_transcendence/backend/src/pong/srcs/Game.cpp",
+    "file": "/home/ellanglo/Project/ft_transcendence/backend/src/pong/srcs/Game.cpp"
+  },
+  {
+    "directory": "/home/ellanglo/Project/ft_transcendence/backend/src/pong/srcs",
+    "command": "g++ -std=c++17 -I/home/ellanglo/Project/ft_transcendence/backend/src/pong/includes -I/home/ellanglo/Project/ft_transcendence/backend/node_modules/node-addon-api -I/home/ellanglo/.cache/node-gyp/23.9.0/include/node -DNODE_GYP_MODULE_NAME=addon -DUSING_UV -DUSING_V8 -fPIC -Wall -Wextra -c /home/ellanglo/Project/ft_transcendence/backend/src/pong/srcs/main.cpp",
+    "file": "/home/ellanglo/Project/ft_transcendence/backend/src/pong/srcs/main.cpp"
+  }
+]

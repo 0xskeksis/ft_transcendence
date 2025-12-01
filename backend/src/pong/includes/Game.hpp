@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/18 17:47:55 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/25 23:20:11 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/11/30 16:04:06 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #pragma once
@@ -16,6 +16,7 @@
 #include <map>
 #include <utility>
 #include <random>
+#include <napi.h>
 
 #define SETGET(type, name, Name) 											\
 	public: 																\
@@ -57,39 +58,43 @@ typedef enum
 	STARTED = 1,
 	FINISHED = 2
 } GameStatus;
-
+class Game;
+void pad_collision(Game &game);
+Napi::Object GetGameData(const Napi::CallbackInfo& info);
 class Game
 {
 	SETGET(double, lpad, Lpad);
 	SETGET(double, rpad, Rpad);
 	SETGET(GameStatus, status, Status);
 	public:
-		Game(): ball(new Ball()), id(-1)
+		Game(): ball(Ball()), id(-1)
 		{
 			score = std::make_pair(0, 0);
 			lpad = 0.5;
 			rpad = 0.5;
 			status = CREATED;
 		}
-		Game(int id): ball(new Ball()), id(id)
+		Game(int id): ball(Ball()), id(id)
 		{
 			score = std::make_pair(0, 0);
 			lpad = 0.5;
 			rpad = 0.5;
 			status = CREATED;
 		}
-		~Game() { delete ball; }
+		~Game() {}
 
 		const std::pair<int, int>	getScore() const { return score; }
 		void						addScore(bool player) {player ? score.first++ : score.second++;};
-		Ball						*getBall() const { return ball; }
+		Ball						getBall() const { return ball; }
 		void						movePaddle(int id, int op, int opt = 0);
 		void						update(int input0, int input1);
-		void						setBallPos(double x, double y) { ball->x = x; ball->y = y; }
+		void						setBallPos(double x, double y) { ball.x = x; ball.y = y; }
 		void						restart(int side);
+		friend void					pad_collision(Game &game);
+		friend Napi::Object GetGameData(const Napi::CallbackInfo& info);
 
 	private:
-		Ball *ball;
+		Ball ball;
 		int id;
 		std::pair<int, int> score;
 };
