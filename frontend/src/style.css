@@ -1,12 +1,16 @@
-html, body {
-    overflow: hidden;
+:root, body, html {
     width: 100%;
     height: 100%;
     margin: 0;
     padding: 0;
+    overflow: hidden;
+    background-color: #000000;
 }
+
 #renderCanvas {
     width: 100%;
     height: 100%;
+    display: block;
+    outline: none;
     touch-action: none;
 }
