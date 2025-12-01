@@ -3,9 +3,11 @@ import bcrypt from 'bcrypt'
 import db from "../db/db.js"
 import {findUserByEmail, checkPassword} from "../utils/utils.controllers.js"
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 const SALT_ROUNDS = 10;
-const SECRET = "8fh328h78&fgdshfgsj"
 const MIN_PASSWORD_LENGTH = 1;
 
 const	blacklist = [];
@@ -17,7 +19,9 @@ export async function createDatabase(){
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			username TEXT NOT NULL UNIQUE,
 			email TEXT NOT NULL UNIQUE,
-			password TEXT NOT NULL
+			password TEXT NOT NULL,
+			two_fa INTEGER,
+			google_secret TEXT
 		);
 
 			CREATE TABLE IF NOT EXISTS users_stats (
@@ -70,13 +74,13 @@ export async function registerUser(request, reply){
 
 export async function verifyUser(request, reply){
 	try {
-		const { email, password} = request.body ?? {};
+		const { username, password} = request.body ?? {};
 
-		if (!email || !password)
+		if (!username || !password)
 			return reply.status(400).send({ error: "Missing Field" });
 
-		const stmt = db.prepare("SELECT id, username, email, password FROM users WHERE email = ?");
-		const user = stmt.get(email);
+		const stmt = db.prepare("SELECT id, username, email, password FROM users WHERE username = ?");
+		const user = stmt.get(username);
 
 		if (!user)
 			return reply.status(401).send({ error: "Invalid Credentials" });
@@ -86,7 +90,7 @@ export async function verifyUser(request, reply){
 			return reply.status(500).send({ error: "Invalid Credentials" });
 		const token = await jwt.sign(
 			{ id: user.id, email: user.email, username: user.username },
-			SECRET,
+			process.env.SECRET,
 			{ expiresIn: "1h" }
 		);
 		const obj = {
@@ -94,7 +98,6 @@ export async function verifyUser(request, reply){
 			message: "User successfully logged in!",
 			token,
 		}
-		console.log(obj)
 		return reply.send(obj);
 	}catch(e){
 		console.log(e);
