@@ -26,16 +26,23 @@ RUN groupadd -g 1001 nodejs && \
 # copy app files
 COPY --from=builder /app /app
 
+RUN mkdir /certs
+RUN chmod 777 /certs
 
 # copy addon explicitly and fix permissions
 COPY --from=builder --chown=nextjs:nodejs \
     /app/src/pong/build/Release/addon.node \
     /app/src/pong/build/Release/addon.node
 
+RUN echo "FR\n\r.\n\r.\n\r.\n\r.\n\r.\n\r" | openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /certs/key.pem -out /certs/cert.pem
+
+RUN chmod 777 /certs/key.pem
+RUN chmod 777 /certs/cert.pem
+
 USER nextjs
 
-
 EXPOSE 3000 8000
+
 
 CMD ["npm", "run", "dev"]
 
