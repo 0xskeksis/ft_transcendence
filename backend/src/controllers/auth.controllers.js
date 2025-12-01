@@ -57,24 +57,20 @@ export async function registerUser(request, reply){
 		const userId = info.lastInsertRowid;
 		db.prepare("INSERT INTO users_stats (id, games_played, games_wins) VALUES (?, 0, 0)").run(userId);
 
-		// return reply.send({success: true, message: "User successfuly created !" });
-		//debug db
 		const rows = db.prepare("SELECT * FROM users").all()
-		return reply.send({users: rows});
-		// return {success: true, message: "User successfuly created !" };
+		return reply.send({success: true, message: "User successfuly created ! You can now login." });
 	}catch (err) {
 		if (err.code === "SQLITE_CONSTRAINT_UNIQUE" || err.code == "SQLITE_CONSTRAINT"){
 			return reply.status(400).send({error: "Failed to create the users"})
 		}
 		console.log(err);
-		return reply.status(500).send({error: "Internal Error"})
+		return reply.status(401).send({error: "Internal Error"})
 	}
-
 }
 
 export async function verifyUser(request, reply){
 	try {
-		const { username, password} = request.body ?? {};
+		const { username , password} = request.body ?? {};
 
 		if (!username || !password)
 			return reply.status(400).send({ error: "Missing Field" });
@@ -87,11 +83,11 @@ export async function verifyUser(request, reply){
 
 		const good = await checkPassword(user, password);
 		if (!good)
-			return reply.status(500).send({ error: "Invalid Credentials" });
+			return reply.status(401).send({ error: "Invalid Credentials" });
 		const token = await jwt.sign(
 			{ id: user.id, email: user.email, username: user.username },
-			process.env.SECRET,
-			{ expiresIn: "1h" }
+			SECRET,
+			{ expiresIn: "1000h" }
 		);
 		const obj = {
 			success: true,
@@ -101,11 +97,12 @@ export async function verifyUser(request, reply){
 		return reply.send(obj);
 	}catch(e){
 		console.log(e);
-		return reply.code(500).send({ error: "Internal server error" });
+		return reply.code(401).send({ error: "Internal server error" });
 	}
 }
 
-export async function deleteUser(request, reply){
+export async function deleteUser(request, reply)
+{
 	const {username, email, password} = request.body;
 	
 	if (!username || !email || !password)
@@ -120,7 +117,6 @@ export async function deleteUser(request, reply){
 		return reply.status(401).send({error: "Invalid Credentials"})
 	stmt = db.prepare("DELETE FROM users WHERE email = ?");
 	stmt.run(email)
-
 
 	return {success: true, message: "You are no longer register on this website !"};
 }

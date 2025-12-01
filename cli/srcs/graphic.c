@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 15:04:51 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/26 17:57:25 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/11/30 15:43:48 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <Application.h>
@@ -30,10 +30,10 @@ static gboolean on_key_press(UNUSED GtkEventControllerKey *controller, guint key
 	switch (keyval)
 	{
 		case GDK_KEY_w:
-			App.Inputs->up = true;
+			App.Inputs.up = true;
 			break;
 		case GDK_KEY_s:
-			App.Inputs->down = true;
+			App.Inputs.down = true;
 			break;
 		case GDK_KEY_Escape:
 			close_app();
@@ -63,10 +63,10 @@ static gboolean on_key_release(UNUSED GtkEventControllerKey *controller, guint k
 	switch (keyval)
 	{
 		case GDK_KEY_w:
-			App.Inputs->up = false;
+			App.Inputs.up = false;
 			break;
 		case GDK_KEY_s:
-			App.Inputs->down = false;
+			App.Inputs.down = false;
 			break;
 	}
     return TRUE;
@@ -118,9 +118,9 @@ static void on_draw(UNUSED GtkDrawingArea *area, cairo_t *cr, int width, int hei
 static gboolean on_tick(GtkWidget *widget, UNUSED GdkFrameClock *frame_clock, UNUSED gpointer user_data) 
 {
 	get_game_data();
-	if (App.Inputs->down)
+	if (App.Inputs.down)
 		post_input(1);
-	else if (App.Inputs->up)
+	else if (App.Inputs.up)
 		post_input(2);
 	else
 		post_input(0);

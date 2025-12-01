@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 14:38:02 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/25 22:40:45 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/11/30 10:36:50 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #pragma once
@@ -17,7 +17,8 @@ int		get_game_data();
 char	*itoa(int);
 int		post_input(int);
 int		set_ball(double, double, int);
-int		register_user(char *username, char *email, char *password);
-int		login_user(char *email, char *password);
+int		register_user(char *, char *, char *);
+int		login_user(char *, char *);
 int		create_game();
 int		start_game();
+int		join_game(int);

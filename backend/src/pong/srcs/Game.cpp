@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/19 20:22:01 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/26 16:17:27 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/11/30 11:51:53 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <Game.hpp>
@@ -81,30 +81,30 @@ static double calc_angle(double ball_y, double pad_y)
     return rel * MAX_REFLECT;
 }
 
-static void pad_collision(Game &game)
+void pad_collision(Game &game)
 {
-	Ball *ball = game.getBall();
-	static const int step = 4;
+	//Ball game.ball = game.getBall();
+	static const int step = 6;
 	for (int i = 0; i < step; i++)
 	{
 		double padY = 0.0;
-		int side = inPaddle(ball->x, ball->y, padY, game);
+		int side = inPaddle(game.ball.x, game.ball.y, padY, game);
 		if (side != 0)
 		{
-			double theta = calc_angle(ball->y, padY);
-			double speed = std::hypot(ball->dx, ball->dy);
+			double theta = calc_angle(game.ball.y, padY);
+			double speed = std::hypot(game.ball.dx, game.ball.dy);
 			speed = std::min(0.03, speed*1.2);
-			ball->dx = -static_cast<double>(side) * speed * std::cos(theta);
-			ball->dy = speed * std::sin(theta);
+			game.ball.dx = -static_cast<double>(side) * speed * std::cos(theta);
+			game.ball.dy = speed * std::sin(theta);
 			double pad_x = (side == 1) ? (1.0 - R_PAD_OFFSET_N - PADDLE_W_N) : (L_PAD_OFFSET_N);
 			if (side == -1)
-				ball->x = pad_x + PADDLE_W_N + BALL_RADIUS_N + 1e-6;
+				game.ball.x = pad_x + PADDLE_W_N + BALL_RADIUS_N + 1e-6;
 			else
-				ball->x = pad_x - BALL_RADIUS_N - 1e-6;
+				game.ball.x = pad_x - BALL_RADIUS_N - 1e-6;
 			std::cout << "Ball speed : " << speed << "\n";
 		}
-		ball->x += ball->dx / step;
-		ball->y += ball->dy / step;
+		game.ball.x += game.ball.dx / step;
+		game.ball.y += game.ball.dy / step;
 	}
 }
 
@@ -114,12 +114,12 @@ void Game::update(int input0, int input1)
     movePaddle(RIGHT, input1);
 
 	pad_collision(*this);
-	if (ball->y <= 0.014 || ball->y >= 1 - 0.014)
-		ball->dy = -ball->dy;
+	if (ball.y <= 0.014 || ball.y >= 1 - 0.014)
+		ball.dy = -ball.dy;
 
-	if (ball->x > 1 - R_PAD_OFFSET_N - PADDLE_W_N)
+	if (ball.x > 1 - R_PAD_OFFSET_N - PADDLE_W_N)
 		restart(RIGHT);
-	else if (ball->x < L_PAD_OFFSET_N + PADDLE_W_N)
+	else if (ball.x < L_PAD_OFFSET_N + PADDLE_W_N)
 		restart(LEFT);
 	if (std::max(score.first, score.second) == 10)
 		status = FINISHED;
@@ -127,7 +127,7 @@ void Game::update(int input0, int input1)
 
 void Game::restart(int side)
 {
-	ball->reset();	
+	ball.reset();	
 	switch (side)
 	{
 		case LEFT: score.second++; side = -1; break;
@@ -135,5 +135,5 @@ void Game::restart(int side)
 	}
 	lpad = 0.5;
 	rpad = 0.5;
-	ball->dx = BALL_SPEED_NORM * side;
+	ball.dx = BALL_SPEED_NORM * side;
 }

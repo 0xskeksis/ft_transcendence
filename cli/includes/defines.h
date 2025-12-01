@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 16:31:29 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/27 17:43:22 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/11/30 10:00:44 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #pragma once
@@ -15,7 +15,7 @@
 #define STR(x) STR_HELPER(x)
 
 #define RESPONSE_SIZE				512
-#define SERVER_BASE					"http://10.13.6.2:"
+#define SERVER_BASE					"http://10.13.7.1:"
 #define LOGIN_PORT					3000
 #define API_PORT					8000
 #define PONG						SERVER_BASE STR(API_PORT) "/pong"
@@ -23,6 +23,7 @@
 #define PONG_POST					PONG "/post-input"
 #define PONG_CREATE					PONG "/create-game"
 #define PONG_START					PONG "/start-game"
+#define PONG_JOIN					PONG "/join-game"
 #define PONG_DEBUG					PONG "/debug"
 #define PONG_SET_BALL				PONG_DEBUG "/set-ball"
 #define REGISTER					SERVER_BASE STR(LOGIN_PORT) "/register"
@@ -33,6 +34,7 @@
 
 #define JSON_INT					valueint
 #define JSON_DOUBLE					valuedouble
+#define JSON_STR					valuestring
 #define JSON_GET(from, field, ...)	cJSON_GetObjectItemCaseSensitive(from, field)__VA_OPT__(->__VA_ARGS__)
 
 #define UNUSED						__attribute__((unused))

@@ -1,18 +1,5 @@
-// ************************************************************************** //
-//                                                                            //
-//                                                        :::      ::::::::   //
-//   pong.routes.js                                     :+:      :+:    :+:   //
-//                                                    +:+ +:+         +:+     //
-//   By: stetrel <stetrel@42angouleme.fr>           +#+  +:+       +#+        //
-//                                                +#+#+#+#+#+   +#+           //
-//   Created: 2025/11/28 16:09:53 by stetrel           #+#    #+#             //
-//   Updated: 2025/11/28 16:48:52 by stetrel          ###   ########.fr       //
-//                                                                            //
-// ************************************************************************** //
-
-import {getGameData, sendInput, setBallPos, createGame, startGame} from '../controllers/pong.controllers.js'
+import {getGameData, sendInput, setBallPos, createGame, startGame, joinGame} from '../controllers/pong.controllers.js'
 import {authenticateToken} from '../middlewares/auth.middleware.js'
-
 
 //TODO: Verify JWT to access all the routes
 async function pong_routes (fastify, options){
@@ -54,6 +41,10 @@ async function pong_routes (fastify, options){
 		},
 		async (request, reply) =>{
 		startGame(request, reply);
+	})
+
+	fastify.post('/pong/join-game', async (request, reply) => {
+		joinGame(request, reply);
 	})
 }
 

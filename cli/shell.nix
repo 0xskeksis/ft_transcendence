@@ -18,6 +18,7 @@ pkgs.mkShell {
 	cjson
 	valgrind
 	glibcLocales
+	libjwt
   ];
 
   shellHook = ''
@@ -29,4 +30,3 @@ pkgs.mkShell {
 	zsh
   '';
 }
-
