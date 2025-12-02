@@ -1,6 +1,6 @@
 import {registerUser, verifyUser} from '../controllers/auth.controllers.js'
 import {checkRequestIntegrity} from '../middlewares/auth.middleware.js'
-import {setup2fa, enable2fa, disable2fa, verify2fa} from '../controllers/2fa.controllers.js'
+import {get_google_secret} from '../controllers/2fa.controllers.js'
 
 async function routes (fastify, options){
 	fastify.get('/', async (request, reply) => {
@@ -18,7 +18,7 @@ async function routes (fastify, options){
 	fastify.post(
 	'/login',
 	{
-		preHandler: checkRequestIntegrity(['username', 'password'])
+		preHandler: checkRequestIntegrity(['username', 'password', 'token'])
 		
 	},
 	(request, reply) => {
@@ -26,21 +26,14 @@ async function routes (fastify, options){
 	})
 
 	fastify.post(
-		'/2fa/setup', (request, reply) => {
-			setup2fa(request, reply);
-		})
-	fastify.post(
-		'/2fa/verify', (request, reply) => {
-			verify2fa(request, reply);
-		})
-	fastify.post(
-		'/2fa/enable', (request, reply) => {
-			enable2fa(request, reply);
-		})
-	fastify.post(
-		'/2fa/disable', (request, reply) => {
-			disable2fa(request, reply);
-		})
+		'/get-secret',
+		{
+			preHandler: checkRequestIntegrity(['username', 'password'])
+		},
+		(request, reply) => {
+			get_google_secret(request, reply);
+		}
+	);
 }
 
 export default routes

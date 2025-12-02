@@ -27,7 +27,7 @@ loginServer.listen({ port: APP_PORT, host: '0.0.0.0'}, (err, address) => {
 });
 
 // --- Serveur pour l'API ---
-const apiServer = Fastify();
+const apiServer = Fastify({https: httpsOptions});
 apiServer.register(pong_routes);
 apiServer.listen({ port: API_PORT, host: '0.0.0.0'}, (err, address) => {
 	if (err) {

@@ -25,7 +25,6 @@ RUN groupadd -g 1001 nodejs && \
 
 # copy app files
 COPY --from=builder /app /app
-
 RUN mkdir /certs
 RUN chmod 777 /certs
 
@@ -43,6 +42,4 @@ USER nextjs
 
 EXPOSE 3000 8000
 
-
 CMD ["npm", "run", "dev"]
-

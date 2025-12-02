@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 14:44:25 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/30 16:21:02 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/12/02 14:38:42 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #pragma once
@@ -37,7 +37,8 @@ typedef struct
 	{
 		char *jwt;
 		int	id;
-		bool _2fa;
+		char *username;
+		char *password;
 	}	UserInfo;
 	int gameId;
 	int side;
@@ -46,6 +47,6 @@ typedef struct
 extern t_App App;
 
 void delete_app();
-void close_app();
+void close_app() __attribute__((__noreturn__)) ;
 void create_app();
 void prohibit_sig();

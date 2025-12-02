@@ -4,6 +4,7 @@ import db from "../db/db.js"
 import {findUserByEmail, checkPassword} from "../utils/utils.controllers.js"
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv'
+import {setup2fa, verify2fa} from "./2fa.controllers.js"
 
 dotenv.config()
 
@@ -20,7 +21,6 @@ export async function createDatabase(){
 			username TEXT NOT NULL UNIQUE,
 			email TEXT NOT NULL UNIQUE,
 			password TEXT NOT NULL,
-			two_fa INTEGER,
 			google_secret TEXT
 		);
 
@@ -56,9 +56,8 @@ export async function registerUser(request, reply){
 
 		const userId = info.lastInsertRowid;
 		db.prepare("INSERT INTO users_stats (id, games_played, games_wins) VALUES (?, 0, 0)").run(userId);
-
-		const rows = db.prepare("SELECT * FROM users").all()
-		return reply.send({success: true, message: "User successfuly created ! You can now login." });
+		const _2fa = await setup2fa(username);
+		return reply.send({success: true, message: "User successfuly created ! You can now login.", _2fa: _2fa});
 	}catch (err) {
 		if (err.code === "SQLITE_CONSTRAINT_UNIQUE" || err.code == "SQLITE_CONSTRAINT"){
 			return reply.status(400).send({error: "Failed to create the users"})
@@ -70,9 +69,9 @@ export async function registerUser(request, reply){
 
 export async function verifyUser(request, reply){
 	try {
-		const { username , password} = request.body ?? {};
+		const { username, password, token} = request.body ?? {};
 
-		if (!username || !password)
+		if (!username || !password || !token)
 			return reply.status(400).send({ error: "Missing Field" });
 
 		const stmt = db.prepare("SELECT id, username, email, password FROM users WHERE username = ?");
@@ -84,15 +83,20 @@ export async function verifyUser(request, reply){
 		const good = await checkPassword(user, password);
 		if (!good)
 			return reply.status(401).send({ error: "Invalid Credentials" });
-		const token = await jwt.sign(
+		
+		const ret = await verify2fa(username, token);
+		if (ret !== 1)
+			return reply.status(400).send({ error: "Invalid 2FA code" });
+
+		const jtoken = await jwt.sign(
 			{ id: user.id, email: user.email, username: user.username },
-			SECRET,
+			process.env.JWT_SECRET,
 			{ expiresIn: "1000h" }
 		);
 		const obj = {
 			success: true,
 			message: "User successfully logged in!",
-			token,
+			jtoken,
 		}
 		return reply.send(obj);
 	}catch(e){
