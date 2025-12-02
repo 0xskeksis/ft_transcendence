@@ -20,54 +20,55 @@ import { authenticator } from 'otplib';
 // }
 //
 
-export async function verify2fa(request, reply){
-	const { username, token } = request.body ?? {};
-	if (!username || !token)
-		return reply.status(400).send({ error: "Missing Fields" });
-
+export async function verify2fa(username, token){
 	let stmt = db.prepare(
-		"SELECT google_secret, two_fa FROM users WHERE username = ?"
+		"SELECT google_secret FROM users WHERE username = ?"
 	);
 	const user = stmt.get(username);
-	if (!user || !user.two_fa)
-		return reply.status(400).send({ error: "2FA not enabled" });
 
-	const is_valid = authenticator.verify({
+	const is_valid = await authenticator.verify({
 		token,
-		secret: user.google_secret
+		secret: user.google_secret,
+		window: 1
 	});
+	console.log("SERVER TOTP NOW =", authenticator.generate(user.google_secret));
 
 	if (!is_valid)
-		return reply.status(400).send({ error: "Invalid 2FA code" });
-
-	return reply.send({ success: true });
+		return 0;
+	return 1;
 }
 
-export async function setup2fa(request, reply){
-	const { username, password } = request.body ?? {};
-	if (!username || !password)
-		return reply.status(400).send({ error: "Missing Fields" });
-
-	let stmt = db.prepare("SELECT id, username, email, password FROM users WHERE username = ?");
-	const user = stmt.get(username);
-	if (!user)
-		return reply.status(400).send({ error: "Wrong Credentials" });
-
-	if (!(await checkPassword(user, password)))
-		return reply.status(400).send({ error: "Invalid Password" });
-
+export async function setup2fa(username){
+	
 	const new_secret = authenticator.generateSecret();
-	const keyUri = authenticator.keyuri(username, "TEST", new_secret);
+	const keyUri = authenticator.keyuri(username, "ft_transcendence", new_secret);
 
-	stmt = db.prepare(
-		"UPDATE users SET two_fa = 0, google_secret = ? WHERE id = ?"
+	let stmt = db.prepare(
+		"UPDATE users SET google_secret = ? WHERE username = ?"
 	);
-	stmt.run(new_secret, user.id);
+	stmt.run(new_secret, username);
 
-	return reply.send({
-		keyUri,
+	return {
+		uriKey: keyUri,
 		secret: new_secret
-	});
+	};
+}
+
+export async function get_google_secret(request, reply){
+	const {username, password} = request.body ?? {};
+	if (!username || !password)
+		return reply.status(400).send({ error: "Missing Fields" })
+
+	const stmt = db.prepare("SELECT id, username, email, password, google_secret FROM users WHERE username = ?");
+	const user = stmt.get(username);
+
+	if (!user)
+		return reply.status(401).send({ error: "Invalid Credentials" });
+
+	const good = await checkPassword(user, password);
+	if (!good)
+		return reply.status(401).send({ error: "Invalid Credentials" });
+	return reply.send({ secret: user.google_secret});
 }
 
 export async function enable2fa(request, reply){
@@ -92,8 +93,8 @@ export async function enable2fa(request, reply){
 }
 
 export async function disable2fa(request, reply){
-	const { username, password, token } = request.body ?? {};
-	if (!username || !password || !token)
+	const { username, token } = request.body ?? {};
+	if (!username || !token)
 		return reply.status(400).send({ error: "Missing Fields" });
 
 	let stmt = db.prepare(
@@ -102,9 +103,6 @@ export async function disable2fa(request, reply){
 	const user = stmt.get(username);
 	if (!user)
 		return reply.status(400).send({ error: "Wrong Credentials" });
-
-	if (!(await checkPassword(user, password)))
-		return reply.status(400).send({ error: "Invalid Password" });
 
 	const is_valid = authenticator.verify({
 		token,

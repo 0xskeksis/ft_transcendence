@@ -19,6 +19,7 @@ pkgs.mkShell {
 	valgrind
 	glibcLocales
 	libjwt
+	jp2a
   ];
 
   shellHook = ''

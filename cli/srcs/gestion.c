@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/27 18:35:04 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/30 16:44:14 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/12/02 14:56:37 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #define _GNU_SOURCE
@@ -115,15 +115,17 @@ static int user_register_sequence(UNUSED void* _)
 
 static int user_login_sequence(UNUSED void* _)
 {
-	char *data[2];
+	char *data[3];
 
 	if (App.UserInfo.jwt != NULL)
 		return printf("User already loged in\n"), 1;
 	data[0] = read_input("Username:\n", 0);
 	data[1] = read_input("Password:\n", 1);
-	int ret = login_user(data[0], data[1]);
+	data[2] = read_input("2fa Token:\n", 0);
+	int ret = login_user(data[0], data[1], data[2]);
 	free(data[0]);
 	free(data[1]);
+	free(data[2]);
 	return ret;
 }
 
@@ -157,34 +159,55 @@ static int join_game_sequence(UNUSED void* _)
 static int free_and_quit(void *to_free)
 {
 	free(to_free);
-	delete_app();
-	_Exit(0);
+	close_app();
+}
+
+static int get_secret_sequence(UNUSED void* _)
+{
+	char *data[2];
+
+	int ret;
+	if (!App.UserInfo.jwt)
+	{
+		data[0] = read_input("Username:\n", 0);
+		data[1] = read_input("Password:\n", 1);
+		ret = get_secret(data[0], data[1]);
+		free(data[0]);
+		free(data[1]);
+	}
+	else
+		ret = get_secret(App.UserInfo.username, App.UserInfo.password);
+	return ret;
 }
 
 static int help_menu(UNUSED void* _)
 {
 	printf("Here is the list of command you can do:\n");
+	printf("-'help' to gte this menu\n");
 	printf("-'register' to start the register process\n");
 	printf("-'login' to start the login process\n");
 	printf("-'create' to create and join a game\n");
 	printf("-'join' to join a game\n");
-	printf("-'quit' to quit the cli\n");
+	printf("-'quit' or 'exit' to quit the cli\n");
+	printf("-'secret' to get a goole secret 2fa token\n");
 	return 0;
 }
 
-#define OPTION_NB 6
+#define OPTION_NB 8
 void user_menu()
 {
 	char *response;
 	static const MenuOption Options[OPTION_NB] =
-		{
-			[0] = {user_register_sequence, "register", 8},
-			[1] = {user_login_sequence, "login", 5},
-			[2] = {create_game_sequence, "create", 6},
-			[3] = {join_game_sequence, "join", 4},
-			[4] = {free_and_quit, "quit", 4},
-			[5] = {help_menu, "help", 4}
-		};
+	{
+		[0] = {user_register_sequence, "register", 8},
+		[1] = {user_login_sequence, "login", 5},
+		[2] = {create_game_sequence, "create", 6},
+		[3] = {join_game_sequence, "join", 4},
+		[4] = {free_and_quit, "quit", 4},
+		[5] = {help_menu, "help", 4},
+		[6] = {get_secret_sequence, "secret", 6},
+		[7] = {free_and_quit, "exit", 4},
+	};
 
 	while (1)
 	{
@@ -194,7 +217,7 @@ void user_menu()
 		{
 			MenuOption current = Options[i];
 
-			if (strncmp(response, current.str, current.len) == 0)
+			if (strcmp(response, current.str) == 0 && (int)strlen(response) == current.len)
 			{
 				matched = true;
 				current.func(response);

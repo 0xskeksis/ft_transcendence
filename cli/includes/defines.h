@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 16:31:29 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/30 10:00:44 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/12/02 15:14:20 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #pragma once
@@ -15,7 +15,7 @@
 #define STR(x) STR_HELPER(x)
 
 #define RESPONSE_SIZE				512
-#define SERVER_BASE					"http://10.13.7.1:"
+#define SERVER_BASE					"https://10.13.5.5:"
 #define LOGIN_PORT					3000
 #define API_PORT					8000
 #define PONG						SERVER_BASE STR(API_PORT) "/pong"
@@ -28,8 +28,11 @@
 #define PONG_SET_BALL				PONG_DEBUG "/set-ball"
 #define REGISTER					SERVER_BASE STR(LOGIN_PORT) "/register"
 #define LOGIN						SERVER_BASE STR(LOGIN_PORT) "/login"
-#define CURL_USER_AGENT				"libcurl-agent/1.0"
+#define GET_SECRET					SERVER_BASE STR(LOGIN_PORT) "/get-secret"
+#define QR_CODE_GEN					"https://quickchart.io/"
+#define QR_OPT_BASE					"qr?margin=1&text="
 
+#define CURL_USER_AGENT				"libcurl-agent/1.0"
 #define CURL_OPT(opt, param)		curl_easy_setopt(App.curl, opt, param)
 
 #define JSON_INT					valueint

@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 14:47:04 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/30 16:39:12 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/12/02 15:14:59 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <Application.h>
@@ -41,7 +41,8 @@ void create_app()
 	App.Inputs.down = 0;
 
 	App.UserInfo.jwt = NULL;
-	App.UserInfo._2fa = false;
+	App.UserInfo.username = NULL;
+	App.UserInfo.password = NULL;
 }
 
 __attribute__((destructor))
@@ -52,4 +53,6 @@ void delete_app()
 
 	free(App.name);
 	free(App.UserInfo.jwt);
+	free(App.UserInfo.username);
+	free(App.UserInfo.password);
 }
