@@ -42,5 +42,4 @@ USER nextjs
 
 EXPOSE 3000 8000
 
-
 CMD ["npm", "run", "dev"]
