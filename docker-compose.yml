@@ -9,7 +9,7 @@ services:
       - "3000:3000"
       - "8000:8000"
     volumes:
-      - ./backend/src:/app/src #Only for the hot-reload
+      - ./backend/src:/app/src
       - /app/src/pong
       - ./data/sqlite:/app/data
     networks:
@@ -22,10 +22,10 @@ services:
       context: .
       dockerfile: frontend/Dockerfile
     ports:
-      - "5000:5000"
+      - "5173:5173"
     volumes:
-      - ./data/sqlite:/app/data
-      - ./nginx/certs:/certs 
+      - ./frontend:/app
+      - /app/node_modules
     networks:
       - app-network
     restart: unless-stopped
