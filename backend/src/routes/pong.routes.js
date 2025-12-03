@@ -1,4 +1,4 @@
-import {getGameData, sendInput, setBallPos, createGame, startGame, joinGame} from '../controllers/pong.controllers.js'
+import {getGameData, sendInput, setBallPos, createGame, startGame, joinGame, getOwner} from '../controllers/pong.controllers.js'
 import {authenticateToken} from '../middlewares/auth.middleware.js'
 
 //TODO: Verify JWT to access all the routes
@@ -43,8 +43,20 @@ async function pong_routes (fastify, options){
 		startGame(request, reply);
 	})
 
-	fastify.post('/pong/join-game', async (request, reply) => {
+	fastify.post('/pong/join-game',
+		{
+			preHandler: authenticateToken
+		},
+		async (request, reply) => {
 		joinGame(request, reply);
+	})
+
+	fastify.get('/pong/get-owner',
+		{
+
+		},
+		async (request, reply) => {
+		getOwner(request, reply);
 	})
 }
 

@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/27 18:35:04 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/12/02 14:56:37 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/12/02 22:57:57 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #define _GNU_SOURCE
@@ -20,7 +20,6 @@
 #include <gestion.h>
 #include <jwt.h>
 #include <Application.h>
-#include <graphic.h>
 
 static ssize_t read_pass (char **lineptr, size_t *n)
 {
@@ -138,7 +137,7 @@ static int create_game_sequence(UNUSED void* _)
 	if (ret)
 		return ret;
 	App.side = 0;
-	init_gtk(0, NULL);
+	show_gui();
 	return 0;
 }
 
@@ -152,7 +151,7 @@ static int join_game_sequence(UNUSED void* _)
 	if (ret)
 		return ret;
 	App.side = 1;
-	init_gtk(0, NULL);
+	show_gui();
 	return 0;
 }
 

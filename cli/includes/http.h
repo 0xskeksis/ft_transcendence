@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 14:38:02 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/12/01 19:07:28 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/12/03 14:30:40 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #pragma once
@@ -22,4 +22,7 @@ int		login_user(char *, char *, char *);
 int		create_game();
 int		start_game();
 int		join_game(int);
-int get_secret(char *username, char *password);
+int		get_secret(char *username, char *password);
+int		get_owner();
+const char *get_jwt_header();
+

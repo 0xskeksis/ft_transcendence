@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/18 17:47:55 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/30 16:04:06 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/12/03 14:17:33 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #pragma once
@@ -37,7 +37,7 @@ static inline int random(int x, int y)
 
 struct Ball
 {
-	Ball(): x(0.5), y(0.5), dx(BALL_SPEED_NORM * random(1,2)*2-3), dy(0){};
+	Ball(): x(0.5), y(0.5), dx(BALL_SPEED_NORM * (random(1,2)*2-3)), dy(0){};
 	double x;
 	double y;
 	double dx;
@@ -58,9 +58,11 @@ typedef enum
 	STARTED = 1,
 	FINISHED = 2
 } GameStatus;
+
 class Game;
 void pad_collision(Game &game);
 Napi::Object GetGameData(const Napi::CallbackInfo& info);
+
 class Game
 {
 	SETGET(double, lpad, Lpad);
@@ -91,7 +93,7 @@ class Game
 		void						setBallPos(double x, double y) { ball.x = x; ball.y = y; }
 		void						restart(int side);
 		friend void					pad_collision(Game &game);
-		friend Napi::Object GetGameData(const Napi::CallbackInfo& info);
+		friend Napi::Object			GetGameData(const Napi::CallbackInfo& info);
 
 	private:
 		Ball ball;
