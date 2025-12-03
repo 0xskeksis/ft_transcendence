@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 14:44:25 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/12/02 14:38:42 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/12/02 22:56:33 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #pragma once
@@ -19,6 +19,9 @@ typedef struct
 {
 	CURL *curl;
 	GtkApplication *gtk;
+	GtkWidget *window;
+	GMainLoop *gui_loop;
+	bool appInit;
 	char *name;
 	struct
 	{
@@ -50,3 +53,4 @@ void delete_app();
 void close_app() __attribute__((__noreturn__)) ;
 void create_app();
 void prohibit_sig();
+void show_gui();

@@ -6,7 +6,7 @@
 //   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2025/11/10 20:07:25 by ellanglo          #+#    #+#             //
-//   Updated: 2025/11/30 17:16:49 by ellanglo         ###   ########.fr       //
+//   Updated: 2025/12/03 14:24:21 by ellanglo         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 import { createRequire } from "module";
@@ -42,8 +42,6 @@ async function getGame(id, reply)
 	let game = wrap.game;
 	if (!game)
 		return reply.status(400).send({error: "Game does not exist"});
-	if (game.status == 2)
-		return reply.status(400).send({error: "Game is already finished"});
 	return 0;
 }
 
@@ -71,8 +69,16 @@ export async function getGameData(request, reply)
 	const rpl = await getGame(game_id, reply);
 	if (rpl !== 0)
 		return rpl;
-	let data = GetGameData(wrap.game.id);
-	return reply.send(data);
+	return reply.send(GetGameData(wrap.game.id));
+}
+
+export async function getOwner(request, reply)
+{
+	const game_id = Number(request.query.game_id);
+	const rpl = await getGame(game_id, reply);
+	if (rpl !== 0)
+		return rpl;
+	return reply.send({owner: wrap.game.player1_id});
 }
 
 export async function sendInput(request, reply)
@@ -127,6 +133,8 @@ export async function startGame(request, reply)
 	let game = wrap.game;
 	if (game.status != 0)
 		return reply.status(400).send({error:"Game already started or ended"});
+	if (game.player2_id == -1)
+		return reply.status(400).send({error:"You can't start a game alone"});
 	game.status = 1;
 	StartGame(game.id);	
 	return 1;

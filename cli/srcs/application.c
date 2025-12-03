@@ -6,9 +6,10 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 14:47:04 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/12/02 15:14:59 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/12/03 14:31:01 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+#include "http.h"
 #include <Application.h>
 #include <stdio.h>
 #include <curl/curl.h>
@@ -35,7 +36,9 @@ void create_app()
 	App.name = malloc(20 * sizeof(char));
 	snprintf(App.name, 20, "pong.cli.%s", random);
 
-	App.gtk = gtk_application_new(App.name, G_APPLICATION_DEFAULT_FLAGS | G_APPLICATION_HANDLES_OPEN);
+	App.gtk = gtk_application_new(App.name, G_APPLICATION_DEFAULT_FLAGS);
+	g_application_register(G_APPLICATION(App.gtk), NULL, NULL);
+	App.appInit = false;
 	
 	App.Inputs.up = 0;
 	App.Inputs.down = 0;
@@ -55,4 +58,5 @@ void delete_app()
 	free(App.UserInfo.jwt);
 	free(App.UserInfo.username);
 	free(App.UserInfo.password);
+	free((void*)get_jwt_header());
 }

@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 16:31:29 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/12/02 15:14:20 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/12/03 13:49:58 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #pragma once
@@ -15,7 +15,7 @@
 #define STR(x) STR_HELPER(x)
 
 #define RESPONSE_SIZE				512
-#define SERVER_BASE					"https://10.13.5.5:"
+#define SERVER_BASE					"https://10.13.6.6:"
 #define LOGIN_PORT					3000
 #define API_PORT					8000
 #define PONG						SERVER_BASE STR(API_PORT) "/pong"
@@ -24,6 +24,7 @@
 #define PONG_CREATE					PONG "/create-game"
 #define PONG_START					PONG "/start-game"
 #define PONG_JOIN					PONG "/join-game"
+#define PONG_GET_OWNER				PONG "/get-owner"
 #define PONG_DEBUG					PONG "/debug"
 #define PONG_SET_BALL				PONG_DEBUG "/set-ball"
 #define REGISTER					SERVER_BASE STR(LOGIN_PORT) "/register"

@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 15:04:51 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/12/01 16:03:44 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/12/03 16:00:51 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <Application.h>
@@ -15,15 +15,6 @@
 #include <defines.h>
 #include <stdio.h>
 #include <http.h>
-
-static void app_open(GtkApplication *app,
-                    UNUSED GFile **files,
-                    UNUSED gint n_files,
-                    UNUSED const gchar *hint,
-                    UNUSED gpointer user_data)
-{
-	g_signal_emit_by_name(app, "activate");
-}
 
 static gboolean on_key_press(UNUSED GtkEventControllerKey *controller, guint keyval, UNUSED guint keycode, UNUSED GdkModifierType state, gpointer user_data) 
 {
@@ -36,7 +27,8 @@ static gboolean on_key_press(UNUSED GtkEventControllerKey *controller, guint key
 			App.Inputs.down = true;
 			break;
 		case GDK_KEY_Escape:
-			close_app();
+			gtk_window_close(GTK_WINDOW(App.window));
+			break;
 		case GDK_KEY_e:
 			{
 				double x, y;
@@ -54,6 +46,13 @@ static gboolean on_key_press(UNUSED GtkEventControllerKey *controller, guint key
 		case GDK_KEY_q:
 			set_ball(0.5, 0.5, 1);
 			break;
+		case GDK_KEY_BackSpace:
+			{
+				int owner = get_owner();
+				if (App.UserInfo.id != owner)
+					break;
+				start_game();
+			}
 	}
 	return TRUE;
 }
@@ -117,7 +116,28 @@ static void on_draw(UNUSED GtkDrawingArea *area, cairo_t *cr, int width, int hei
 
 static gboolean on_tick(GtkWidget *widget, UNUSED GdkFrameClock *frame_clock, UNUSED gpointer user_data) 
 {
-	get_game_data();
+	int status = get_game_data();
+	int sl, sr;
+	sl = App.GameState.score & 0b1111;
+	sr = App.GameState.score >> 4;
+	if (App.side)
+	{
+		int tmp = sl;
+		sl = sr;
+		sr = tmp;
+	}
+	if (status == 2)
+	{
+		if (sl > sr)
+			printf("You won the game!\n");
+		else
+			printf("You lost the game!\n");
+		gtk_window_close(GTK_WINDOW(App.window));
+		return G_SOURCE_CONTINUE;
+	}
+	char title[32];
+	snprintf(title, sizeof(title), "Score %d - %d    Game id: %d", sl, sr, App.gameId);
+	gtk_window_set_title(GTK_WINDOW(App.window), title);
 	if (App.Inputs.down)
 		post_input(1);
 	else if (App.Inputs.up)
@@ -128,27 +148,44 @@ static gboolean on_tick(GtkWidget *widget, UNUSED GdkFrameClock *frame_clock, UN
     return G_SOURCE_CONTINUE;
 }
 
-static void run_gtk(UNUSED GtkApplication *app, UNUSED gpointer user_data)
+static gboolean on_window_close(GtkWindow *window, UNUSED gpointer user_data)
 {
-	GtkWidget *window = gtk_application_window_new(App.gtk);
-	gtk_window_set_title(GTK_WINDOW(window), "PONG");
-	gtk_window_set_default_size(GTK_WINDOW(window), 1920, 1080);
-	gtk_window_present(GTK_WINDOW(window));
-
-	GtkWidget *area = gtk_drawing_area_new();
-    gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(area), on_draw, NULL, NULL);
-	gtk_window_set_child(GTK_WINDOW(window), area);
-	gtk_widget_add_tick_callback(area, on_tick, NULL, NULL);	
-
-	GtkEventController *controller = gtk_event_controller_key_new();
-	g_signal_connect(controller, "key-pressed", G_CALLBACK(on_key_press), area);
-	g_signal_connect(controller, "key-released", G_CALLBACK(on_key_release), NULL);
-	gtk_widget_add_controller(window, controller);
+	gtk_widget_set_visible(GTK_WIDGET(window), FALSE);
+	GMainContext *context = g_main_context_default();
+	while (g_main_context_pending(context))
+		g_main_context_iteration(context, FALSE);
+	if (App.gui_loop)
+        g_main_loop_quit(App.gui_loop);
+	return TRUE;
 }
 
-void init_gtk(int argc, char **argv)
+void show_gui()
 {
-	g_signal_connect(App.gtk, "open", G_CALLBACK(app_open), NULL);
-	g_signal_connect(App.gtk, "activate", G_CALLBACK(run_gtk), NULL);
-	g_application_run(G_APPLICATION(App.gtk), argc, argv);
+	if (!App.appInit)
+	{
+		GtkWidget *window = gtk_application_window_new(App.gtk);
+		App.window = window;
+		gtk_window_set_title(GTK_WINDOW(window), "PONG");
+		gtk_window_set_default_size(GTK_WINDOW(window), 1920, 1080);
+		gtk_window_present(GTK_WINDOW(window));
+		g_signal_connect(window, "close-request", G_CALLBACK(on_window_close), NULL);
+
+		GtkWidget *area = gtk_drawing_area_new();
+		gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(area), on_draw, NULL, NULL);
+		gtk_window_set_child(GTK_WINDOW(window), area);
+		gtk_widget_add_tick_callback(area, on_tick, NULL, NULL);
+
+		GtkEventController *controller = gtk_event_controller_key_new();
+		g_signal_connect(controller, "key-pressed", G_CALLBACK(on_key_press), area);
+		g_signal_connect(controller, "key-released", G_CALLBACK(on_key_release), NULL);
+		gtk_widget_add_controller(window, controller);
+		App.appInit = true;
+	}
+	else
+		gtk_window_present(GTK_WINDOW(App.window));
+
+	App.gui_loop = g_main_loop_new(NULL, FALSE);
+    g_main_loop_run(App.gui_loop);
+    g_main_loop_unref(App.gui_loop);
+    App.gui_loop = NULL;
 }

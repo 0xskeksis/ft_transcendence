@@ -31,7 +31,6 @@ export async function verify2fa(username, token){
 		secret: user.google_secret,
 		window: 1
 	});
-	console.log("SERVER TOTP NOW =", authenticator.generate(user.google_secret));
 
 	if (!is_valid)
 		return 0;
@@ -68,7 +67,10 @@ export async function get_google_secret(request, reply){
 	const good = await checkPassword(user, password);
 	if (!good)
 		return reply.status(401).send({ error: "Invalid Credentials" });
-	return reply.send({ secret: user.google_secret});
+	return reply.send({ 
+		uriKey: authenticator.keyuri(username, "ft_transcendence", user.google_secret),
+		secret: user.google_secret
+	});
 }
 
 export async function enable2fa(request, reply){

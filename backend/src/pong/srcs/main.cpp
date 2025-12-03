@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/18 17:47:38 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/30 16:12:31 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/12/03 14:11:56 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <Game.hpp>
@@ -27,11 +27,13 @@ Napi::Object GetGameData(const Napi::CallbackInfo& info)
 
     Napi::Object data = Napi::Object::New(env);
     auto score = game.getScore();
-    data.Set("score", Napi::Number::New(env, score.first));
+	int score_mask = score.first + (score.second << 4);
+    data.Set("score", Napi::Number::New(env, score_mask));
     data.Set("lpos", Napi::Number::New(env, game.getLpad()));
     data.Set("rpos", Napi::Number::New(env, game.getRpad()));
     data.Set("bposx", Napi::Number::New(env, game.ball.x));
     data.Set("bposy", Napi::Number::New(env, game.ball.y));
+	data.Set("status", Napi::Number::New(env, (int)game.status));
 
     return data;
 }
@@ -78,8 +80,6 @@ Napi::Value NewGame(const Napi::CallbackInfo& info)
     Napi::Env env = info.Env();
 
 	int id = info[0].As<Napi::Number>().Int32Value();
-
-    auto it = gameMap.find(id);
 
     gameMap[id] = Game(id);
     return env.Null();

@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 16:25:51 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/12/02 16:33:12 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/12/03 16:22:02 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <defines.h>
@@ -20,11 +20,11 @@
 #include <stdio.h>
 #include <jwt.h>
 
-static const char *get_jwt_header()
+const char *get_jwt_header()
 {
 	static char *jwt_header = NULL;
 
-	if (jwt_header == NULL)
+	if (jwt_header == NULL && App.UserInfo.jwt)
 	{
 		size_t size = 23 + strlen(App.UserInfo.jwt);
 		jwt_header = malloc(size * sizeof(char));
@@ -62,7 +62,7 @@ static int do_curl_get(char *url, char *response, bool jwt, bool img)
 	CURL_OPT(CURLOPT_USERAGENT, CURL_USER_AGENT);
 
 	FILE *fp = NULL;
-    if (img)
+	if (img)
     {
         fp = fopen(".qrcode", "wb");
         if (!fp)
@@ -72,13 +72,14 @@ static int do_curl_get(char *url, char *response, bool jwt, bool img)
         }
         CURL_OPT(CURLOPT_WRITEFUNCTION, write_img);
         CURL_OPT(CURLOPT_WRITEDATA, fp);
-    }
+	}
 	else
 	{
 		CURL_OPT(CURLOPT_WRITEFUNCTION, write_callback);
 		CURL_OPT(CURLOPT_WRITEDATA, response);
+		CURL_OPT(CURLOPT_SSL_VERIFYPEER, 0L);
+		CURL_OPT(CURLOPT_SSL_VERIFYHOST, 0L);
 	}
-
 
     struct curl_slist *headers = NULL;
 	if (jwt)
@@ -90,7 +91,8 @@ static int do_curl_get(char *url, char *response, bool jwt, bool img)
 	CURLcode res = curl_easy_perform(App.curl);
 	if (jwt)
 		curl_slist_free_all(headers);
-	fclose(fp);
+	if (img)
+		fclose(fp);
 	if (res != CURLE_OK)
 	{
 		fprintf(stderr, "%s\n", curl_easy_strerror(res));
@@ -152,12 +154,29 @@ int get_game_data()
 		return 1;
 
 	const cJSON *data = cJSON_Parse(response);
+	const int status = JSON_GET(data, "status", JSON_INT);
+	if (status == 2)
+		return 2;
 	App.GameState.score = JSON_GET(data, "score", JSON_INT);
 	App.GameState.lpos = JSON_GET(data, "lpos", JSON_DOUBLE);
 	App.GameState.rpos = JSON_GET(data, "rpos", JSON_DOUBLE);
 	App.GameState.bposx = JSON_GET(data, "bposx", JSON_DOUBLE);
 	App.GameState.bposy = JSON_GET(data, "bposy", JSON_DOUBLE);
 	return 0;
+}
+
+int get_owner()
+{
+	char response[RESPONSE_SIZE];
+	char body[64];
+
+	snprintf(body, sizeof(body), PONG_GET_OWNER"?game_id=%d", App.gameId);
+	int res = do_curl_get(body, response, 1, 0);
+	if (res)
+		return 1;
+
+	const cJSON *data = cJSON_Parse(response);
+	return JSON_GET(data, "owner", JSON_INT);
 }
 
 int post_input(int input)
@@ -276,7 +295,6 @@ int create_game()
 	if (res)
 		return 1;
 
-	printf("%s\n", response);
 	const cJSON *data = cJSON_Parse(response);
 	const int id = JSON_GET(data, "id", JSON_INT);
 	printf("New game created with id %d\n", id);
@@ -323,60 +341,9 @@ int get_secret(char *username, char *password)
 		return 1;
 
 	const cJSON *data = cJSON_Parse(response);
-	printf("Your google secret is: %s\n", JSON_GET(data, "secret", JSON_STR));
+	const char *secret = JSON_GET(data, "secret", JSON_STR);
+	const char *uriKey = JSON_GET(data, "uriKey", JSON_STR);
+	if (generate_and_print_qr(uriKey))
+		printf("Here is your 2fa secret: %s\n", secret);
 	return 0;
 }
-
-/* int setup_2fa() */
-/* { */
-/* 	char response[RESPONSE_SIZE]; */
-/* 	size_t username_size = strlen(username); */
-/* 	size_t password_size = strlen(password); */
-/* 	size_t size = 26 + username_size + password_size; */
-/* 	char *body; */
-/* 	snprintf(body, size, "{\"username\":%s,\"password\":%s}", App.UserInfo.username, App.UserInfo.password); */
-/* 	int res = do_curl_post(SETUP_2FA, body, response); */
-/* 	free(body); */
-/* 	if (res) */
-/* 		return 1; */
-/* 	 */
-/* 	const cJSON *data = cJSON_Parse(response); */
-/* 	const char *secret = JSON_GET(data, "secret", JSON_STR); */
-/* 	 */
-/* 	printf("Here is your 2fa code:\n%s\n", secret); */
-/* 	return 0; */
-/* } */
-/*  */
-/* int enable_2fa(int token) */
-/* { */
-/* 	char response[RESPONSE_SIZE]; */
-/* 	szie_t username_size = strlen(username); */
-/* 	size_t size = 29 + username_size; */
-/* 	char *body; */
-/* 	snprintf(body, size, "{\"username\":%s,\"token\":%d}", App.UserInfo.username, token); */
-/* 	int res = do_curl_post(ENABLE_2FA, body, response); */
-/* 	free(body); */
-/* 	if (res) */
-/* 		return 1; */
-/* 	App.UserInfo._2fa = true; */
-/* 	printf("2fa successfully enabled!\n"); */
-/* 	return 0; */
-/* } */
-/*  */
-/* int disable_2fa(int token) */
-/* { */
-/* 	char response[RESPONSE_SIZE]; */
-/* 	szie_t username_size = strlen(username); */
-/* 	size_t size = 29 + username_size; */
-/* 	char *body; */
-/* 	snprintf(body, size, "{\"username\":%s,\"token\":%d}", App.UserInfo.username, token); */
-/* 	int res = do_curl_post(DISABLE_2FA, body, response); */
-/* 	free(body); */
-/* 	if (res) */
-/* 		return 1; */
-/* 	App.UserInfo._2fa = false; */
-/* 	printf("2fa successfully disabled!\n"); */
-/* 	return 0; */
-/* } */
-/*  */
-/*  */

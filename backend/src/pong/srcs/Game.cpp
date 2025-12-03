@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/19 20:22:01 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/11/30 11:51:53 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/12/03 14:11:14 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <Game.hpp>
@@ -121,7 +121,7 @@ void Game::update(int input0, int input1)
 		restart(RIGHT);
 	else if (ball.x < L_PAD_OFFSET_N + PADDLE_W_N)
 		restart(LEFT);
-	if (std::max(score.first, score.second) == 10)
+	if (std::max(score.first, score.second) == 5)
 		status = FINISHED;
 }
 
