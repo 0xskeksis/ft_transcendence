@@ -1,7 +1,6 @@
-import {getGameData, sendInput, setBallPos, createGame, startGame, joinGame, getOwner} from '../controllers/pong.controllers.js'
+import {getGameData, sendInput, setBallPos, createGame, startGame, joinGame, getOwner, createTournament, joinTournament, startTournament, getTournamentData, getTournamentOwner} from '../controllers/pong.controllers.js'
 import {authenticateToken} from '../middlewares/auth.middleware.js'
 
-//TODO: Verify JWT to access all the routes
 async function pong_routes (fastify, options){
 	fastify.get('/pong/get-data', 
 		{
@@ -53,10 +52,50 @@ async function pong_routes (fastify, options){
 
 	fastify.get('/pong/get-owner',
 		{
-
+			preHandler: authenticateToken
 		},
 		async (request, reply) => {
 		getOwner(request, reply);
+	})
+
+	fastify.post('/pong/tournament/create',
+		{
+			preHandler: authenticateToken
+		},
+		async (request, reply) => {
+		await createTournament(request, reply);
+	})
+
+	fastify.post('/pong/tournament/join',
+		{
+			preHandler: authenticateToken
+		},
+		async (request, reply) => {
+		joinTournament(request, reply);
+	})
+
+	fastify.post('/pong/tournament/start',
+		{
+			preHandler: authenticateToken
+		},
+		async (request, reply) => {
+		startTournament(request, reply);
+	})
+
+	fastify.get('/pong/tournament/get-data',
+		{
+			preHandler: authenticateToken
+		},
+		async (request, reply) => {
+		getTournamentData(request, reply);
+	})
+
+	fastify.get('/pong/tournament/get-owner',
+		{
+			preHandler: authenticateToken
+		},
+		async (request, reply) => {
+		getTournamentOwner(request, reply);
 	})
 }
 

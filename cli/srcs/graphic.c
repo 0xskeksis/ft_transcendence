@@ -6,9 +6,10 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 15:04:51 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/12/03 16:00:51 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/12/13 12:39:05 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+#include "glib.h"
 #include <Application.h>
 #include <curl/curl.h>
 #include <gtk/gtk.h>
@@ -16,7 +17,7 @@
 #include <stdio.h>
 #include <http.h>
 
-static gboolean on_key_press(UNUSED GtkEventControllerKey *controller, guint keyval, UNUSED guint keycode, UNUSED GdkModifierType state, gpointer user_data) 
+static gboolean on_key_press(UNUSED GtkEventControllerKey *controller, guint keyval, UNUSED guint keycode, UNUSED GdkModifierType state, UNUSED gpointer user_data) 
 {
 	switch (keyval)
 	{
@@ -29,29 +30,22 @@ static gboolean on_key_press(UNUSED GtkEventControllerKey *controller, guint key
 		case GDK_KEY_Escape:
 			gtk_window_close(GTK_WINDOW(App.window));
 			break;
-		case GDK_KEY_e:
-			{
-				double x, y;
-
-				GdkSurface *surface = gtk_native_get_surface(gtk_widget_get_native(user_data));
-				GdkSeat *seat = gdk_display_get_default_seat(gdk_display_get_default());
-				GdkDevice *pointer = gdk_seat_get_pointer(seat);
-
-				gdk_surface_get_device_position(surface, pointer, &x, &y, NULL);
-
-				set_ball(x, y, 0);
-				printf("%f %f\n", x, y);
-				break;
-			}
-		case GDK_KEY_q:
-			set_ball(0.5, 0.5, 1);
-			break;
 		case GDK_KEY_BackSpace:
 			{
-				int owner = get_owner();
+				if (App.tournamentId == -1)
+				{
+					int owner = get_owner();
+					if (App.UserInfo.id != owner)
+						break;
+					start_game();
+					break;
+				}
+				int owner = get_tournament_owner();
 				if (App.UserInfo.id != owner)
 					break;
-				start_game();
+				start_tournament();
+				printf("Tournament started\n");
+				break;
 			}
 	}
 	return TRUE;
@@ -113,27 +107,68 @@ static void on_draw(UNUSED GtkDrawingArea *area, cairo_t *cr, int width, int hei
     cairo_fill(cr);
 }
 
+static void calc_score(int *sl, int *sr, bool *win)
+{
+	*sl = App.GameState.score & 0b1111;
+	*sr = App.GameState.score >> 4;
+	if (App.side)
+	{
+		int tmp = *sl;
+		*sl = *sr;
+		*sr = tmp;
+	}
+	*win = *sl > *sr;
+}
 
 static gboolean on_tick(GtkWidget *widget, UNUSED GdkFrameClock *frame_clock, UNUSED gpointer user_data) 
 {
 	int status = get_game_data();
 	int sl, sr;
-	sl = App.GameState.score & 0b1111;
-	sr = App.GameState.score >> 4;
-	if (App.side)
-	{
-		int tmp = sl;
-		sl = sr;
-		sr = tmp;
-	}
+	bool win;
+	calc_score(&sl, &sr, &win);
 	if (status == 2)
 	{
-		if (sl > sr)
-			printf("You won the game!\n");
+		if (App.tournamentId == -1)
+		{
+			if (win)
+				printf("You won the game!\n");
+			else
+				printf("You lost the game!\n");
+			App.gameId = -1;
+			gtk_window_close(GTK_WINDOW(App.window));
+			return G_SOURCE_CONTINUE;
+		}
+		get_tournament_data();
+		if (App.TournamentState.status == 1)
+		{
+			if (win)
+			{
+				App.gameId = App.TournamentState.game_3_id;
+				if (App.TournamentState.g3_lside == App.UserInfo.id)
+					App.side = 0;
+				else
+					App.side = 1;
+			}
+			else
+			{
+				App.gameId = -1;
+				App.tournamentId = -1;
+				printf("You lost tournament!\n");
+				gtk_window_close(GTK_WINDOW(App.window));
+			}
+			return G_SOURCE_CONTINUE;
+		}
 		else
-			printf("You lost the game!\n");
-		gtk_window_close(GTK_WINDOW(App.window));
-		return G_SOURCE_CONTINUE;
+		{
+			if (win)
+				printf("You won the tournament\n");
+			else
+				printf("You lost the tournament\n");
+			App.gameId = -1;
+			App.tournamentId = -1;
+			gtk_window_close(GTK_WINDOW(App.window));
+			return G_SOURCE_CONTINUE;
+		}
 	}
 	char title[32];
 	snprintf(title, sizeof(title), "Score %d - %d    Game id: %d", sl, sr, App.gameId);

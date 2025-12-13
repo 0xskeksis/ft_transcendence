@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 16:25:51 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/12/03 16:22:02 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/12/13 12:49:05 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <defines.h>
@@ -148,12 +148,11 @@ int get_game_data()
 	char body[64];	
 
 	snprintf(body, sizeof(body), PONG_GET"?game_id=%d", App.gameId);
-	//printf("%s\n", body);
 	int res = do_curl_get(body, response, 1, 0);
 	if (res)
 		return 1;
 
-	const cJSON *data = cJSON_Parse(response);
+	const cJSON *data = cJSON_Parse(response);	
 	const int status = JSON_GET(data, "status", JSON_INT);
 	if (status == 2)
 		return 2;
@@ -185,27 +184,6 @@ int post_input(int input)
 	char body[50];
 	snprintf(body, sizeof(body), "{\"game_id\":%d,\"input\":%d,\"side\":%d}", App.gameId, input, App.side);
 	int res = do_curl_post(PONG_POST, body, response, 1);
-	if (res)
-		return 1;
-	return 0;
-}
-
-int set_ball(double x, double y, int mode)
-{
-	char response[RESPONSE_SIZE];
-
-	if (mode == 0)
-	{
-		GtkWindow *window = gtk_application_get_active_window(App.gtk);
-		int w = gtk_widget_get_width(GTK_WIDGET(window));
-		int h = gtk_widget_get_height(GTK_WIDGET(window));
-		x /= w;
-		y /= h;
-	}
-
-	char body[48];
-	snprintf(body, sizeof(body), "{\"x\":%f,\"y\":%f,\"game_id\":%d}", x, y, App.gameId);
-	int res = do_curl_post(PONG_SET_BALL, body, response, 1);
 	if (res)
 		return 1;
 	return 0;
@@ -311,9 +289,18 @@ int join_game(int gameId)
 	if (res)
 		return 1;
 
+	const cJSON *data = cJSON_Parse(response);
+	const cJSON *error = JSON_GET(data, "error");
+	if (cJSON_IsString(error))
+		goto json_error;
+
 	printf("Game successfully joined\n");
 	App.gameId = gameId;
 	return 0;
+
+json_error:
+	printf("%s\n", error->JSON_STR);
+	return 2;
 }
 
 int start_game()
@@ -341,9 +328,99 @@ int get_secret(char *username, char *password)
 		return 1;
 
 	const cJSON *data = cJSON_Parse(response);
+	const cJSON *error = JSON_GET(data, "error");
+	if (cJSON_IsString(error))
+		goto json_error;
+
 	const char *secret = JSON_GET(data, "secret", JSON_STR);
 	const char *uriKey = JSON_GET(data, "uriKey", JSON_STR);
 	if (generate_and_print_qr(uriKey))
 		printf("Here is your 2fa secret: %s\n", secret);
 	return 0;
+
+json_error:
+	printf("%s\n", error->JSON_STR);
+	return 2;
+}
+
+int create_tournament()
+{
+	char response[RESPONSE_SIZE];
+	int res = do_curl_post(TOURNAMENT_CREATE, "{\"a\":0}", response, 1);
+	if (res)
+		return 1;
+
+	const cJSON *data = cJSON_Parse(response);
+	const int id = JSON_GET(data, "id", JSON_INT);
+	printf("New tournament created with id: %d\n", id);
+	return 0;
+}
+
+int join_tournament(int tournament_id)
+{
+	char response[RESPONSE_SIZE];
+	char body[64];
+	snprintf(body, sizeof(body), "{\"tournament_id\":%d,\"player_id\":%d}", tournament_id, App.UserInfo.id);
+	int res = do_curl_post(TOURNAMENT_JOIN, body, response, 1);
+	if (res)
+		return 1;
+
+	const cJSON *data = cJSON_Parse(response);
+	const cJSON *error = JSON_GET(data, "error");
+	if (cJSON_IsString(error))
+		goto json_error;
+
+	App.gameId = JSON_GET(data, "id", JSON_INT);
+	App.side = JSON_GET(data, "side", JSON_INT);
+	App.tournamentId = tournament_id;
+	printf("Tournament successfully joined\n");
+	return 0;
+
+json_error:
+	printf("%s\n", error->JSON_STR);
+	return 2;
+}
+
+int start_tournament()
+{
+	char response[RESPONSE_SIZE];
+	char body[32];
+	snprintf(body, sizeof(body), "{\"tournament_id\":%d}", App.tournamentId);
+	int res = do_curl_post(TOURNAMENT_START, body, response, 1);
+	if (res)
+		return 1;
+	
+	return 0;
+}
+
+int get_tournament_data()
+{
+	if (App.tournamentId == -1)
+		return 1;
+	char response[RESPONSE_SIZE];
+	char body[80];
+	snprintf(body, sizeof(body), TOURNAMENT_GET_DATA"?tournament_id=%d", App.tournamentId);
+	int res = do_curl_get(body, response, 1, 0);
+	if (res)
+		return 1;
+
+	const cJSON *data = cJSON_Parse(response);
+	App.TournamentState.status = JSON_GET(data, "status", JSON_INT);
+	App.TournamentState.winner = JSON_GET(data, "winner", JSON_INT);
+	App.TournamentState.game_3_id = JSON_GET(data, "game_3_id", JSON_INT);
+	App.TournamentState.g3_lside = JSON_GET(data, "game_3_lside", JSON_INT);
+	return 0;
+}
+
+int get_tournament_owner()
+{
+	char response[RESPONSE_SIZE];
+	char body[80];
+	snprintf(body, sizeof(body), TOURNAMENT_GET_OWNER"?tournament_id=%d", App.tournamentId);
+	int res = do_curl_get(body, response, 1, 0);
+	if (res)
+		return 1;
+
+	const cJSON *data = cJSON_Parse(response);
+	return JSON_GET(data, "id", JSON_INT);
 }

@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/19 20:22:01 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/12/03 14:11:14 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/12/13 12:47:59 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <Game.hpp>
@@ -101,7 +101,6 @@ void pad_collision(Game &game)
 				game.ball.x = pad_x + PADDLE_W_N + BALL_RADIUS_N + 1e-6;
 			else
 				game.ball.x = pad_x - BALL_RADIUS_N - 1e-6;
-			std::cout << "Ball speed : " << speed << "\n";
 		}
 		game.ball.x += game.ball.dx / step;
 		game.ball.y += game.ball.dy / step;

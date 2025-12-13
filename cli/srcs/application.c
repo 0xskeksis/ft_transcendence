@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 14:47:04 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/12/03 14:31:01 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/12/04 14:30:58 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "http.h"
@@ -46,6 +46,8 @@ void create_app()
 	App.UserInfo.jwt = NULL;
 	App.UserInfo.username = NULL;
 	App.UserInfo.password = NULL;
+	App.gameId = -1;
+	App.tournamentId = -1;
 }
 
 __attribute__((destructor))

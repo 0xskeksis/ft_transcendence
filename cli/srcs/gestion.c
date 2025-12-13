@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/27 18:35:04 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/12/02 22:57:57 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/12/04 18:52:56 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #define _GNU_SOURCE
@@ -179,6 +179,28 @@ static int get_secret_sequence(UNUSED void* _)
 	return ret;
 }
 
+static int create_tournament_sequence(UNUSED void* _)
+{
+	if (App.UserInfo.jwt == NULL)
+		return printf("User has to log in in order to create a tournament\n"), 1;
+
+	int ret = create_tournament();
+	return ret;
+}
+
+static int join_tournament_sequence(UNUSED void* _)
+{
+	if (App.UserInfo.jwt == NULL)
+		return printf("User has to log in in order to join a tournament\n"), 1;
+
+	char *id = read_input("Tournament id:\n", 0);
+	int ret = join_tournament(atoi(id));
+	if (ret)
+		return ret;
+	show_gui();
+	return 0;
+}
+
 static int help_menu(UNUSED void* _)
 {
 	printf("Here is the list of command you can do:\n");
@@ -189,10 +211,12 @@ static int help_menu(UNUSED void* _)
 	printf("-'join' to join a game\n");
 	printf("-'quit' or 'exit' to quit the cli\n");
 	printf("-'secret' to get a goole secret 2fa token\n");
+	printf("-'tournament create' to create a new tournament\n");
+	printf("-'tournament join' to join a tournament\n");
 	return 0;
 }
 
-#define OPTION_NB 8
+#define OPTION_NB 10
 void user_menu()
 {
 	char *response;
@@ -206,6 +230,8 @@ void user_menu()
 		[5] = {help_menu, "help", 4},
 		[6] = {get_secret_sequence, "secret", 6},
 		[7] = {free_and_quit, "exit", 4},
+		[8] = {create_tournament_sequence, "tournament create", 17},
+		[9] = {join_tournament_sequence, "tournament join", 15}
 	};
 
 	while (1)
