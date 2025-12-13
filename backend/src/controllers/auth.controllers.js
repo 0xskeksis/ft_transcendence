@@ -98,7 +98,8 @@ export async function verifyUser(request, reply){
 			message: "User successfully logged in!",
 			jtoken,
 		}
-		return reply.send(obj);
+		reply.send(obj)
+		return reply;
 	}catch(e){
 		console.log(e);
 		return reply.code(401).send({ error: "Internal server error" });

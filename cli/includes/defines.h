@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 16:31:29 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/12/03 13:49:58 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/12/13 12:27:02 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #pragma once
@@ -15,7 +15,10 @@
 #define STR(x) STR_HELPER(x)
 
 #define RESPONSE_SIZE				512
-#define SERVER_BASE					"https://10.13.6.6:"
+#ifndef SERVER_IP
+# error SERVER_IP is no define; Please do `export SERVER_IP=IP` before compiling
+#endif
+#define SERVER_BASE					"https://" STR(SERVER_IP) ":"
 #define LOGIN_PORT					3000
 #define API_PORT					8000
 #define PONG						SERVER_BASE STR(API_PORT) "/pong"
@@ -27,6 +30,12 @@
 #define PONG_GET_OWNER				PONG "/get-owner"
 #define PONG_DEBUG					PONG "/debug"
 #define PONG_SET_BALL				PONG_DEBUG "/set-ball"
+#define TOURNAMENT					PONG "/tournament"
+#define TOURNAMENT_CREATE			TOURNAMENT "/create"
+#define TOURNAMENT_JOIN				TOURNAMENT "/join"
+#define TOURNAMENT_START			TOURNAMENT "/start"
+#define TOURNAMENT_GET_DATA			TOURNAMENT "/get-data"
+#define TOURNAMENT_GET_OWNER		TOURNAMENT "/get-owner"
 #define REGISTER					SERVER_BASE STR(LOGIN_PORT) "/register"
 #define LOGIN						SERVER_BASE STR(LOGIN_PORT) "/login"
 #define GET_SECRET					SERVER_BASE STR(LOGIN_PORT) "/get-secret"

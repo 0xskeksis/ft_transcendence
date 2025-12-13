@@ -6,7 +6,7 @@
 /*   By: ellanglo <ellanglo@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 14:44:25 by ellanglo          #+#    #+#             */
-/*   Updated: 2025/12/02 22:56:33 by ellanglo         ###   ########.fr       */
+/*   Updated: 2025/12/06 15:34:08 by ellanglo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #pragma once
@@ -38,6 +38,13 @@ typedef struct
 	}	GameState;
 	struct
 	{
+		int status;
+		int winner;
+		int game_3_id;
+		int g3_lside;
+	}	TournamentState;
+	struct
+	{
 		char *jwt;
 		int	id;
 		char *username;
@@ -45,6 +52,7 @@ typedef struct
 	}	UserInfo;
 	int gameId;
 	int side;
+	int tournamentId;
 } t_App;
 
 extern t_App App;

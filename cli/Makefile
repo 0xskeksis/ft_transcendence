@@ -26,7 +26,7 @@ $(TARGET): $(OBJFILES)
 $(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
 	@mkdir -p $(dir $@)
 	@echo "Compiling $<..."
-	$(CXX) $(CXXFLAGS) $(GTK_CFLAGS) $(INCDIR) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(GTK_CFLAGS) $(INCDIR) -c $< -o $@ $(if $(SERVER_IP),-DSERVER_IP=$(SERVER_IP))
 
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
